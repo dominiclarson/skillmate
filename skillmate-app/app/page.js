@@ -1,6 +1,6 @@
 import Image from "next/image";
 
 export default function Home() {
-  return <hi>Hello World</hi>
-   
+  return <h1>Hello World</h1>
+  
 }
