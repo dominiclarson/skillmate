@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from 'next/link';
 
 export default function Home() {
-<<<<<<< HEAD
   return (
 
     <div className="min-h-screen flex flex-col">
@@ -14,8 +13,5 @@ export default function Home() {
       </main>
     </div>
   );
-=======
-  return <h1 style={{ fontSize: "2rem" }}>Hello World</h1>
->>>>>>> 70f65208314cdfe501bf6c70133200a34737dc3c
   
 }
