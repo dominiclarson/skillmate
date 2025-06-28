@@ -4,7 +4,7 @@ import Link from 'next/link';
 const skills = [
   "Vehicle Mechanic", "Farm/Industrial Mechanic", "Machinist", "Welder", "Fabricator", 
   "Carpenter/Woodworker", "Plumber", "Electrician", "Computer Repair/Building", 
-  "Mobile device repair", "Chef", "Roofing/Framing", "Finish work (trim", " paint)", 
+  "Mobile device repair", "Chef", "Roofing/Framing", "Finish work (trim, paint)", 
   "Structural Engineer", "HVAC", "Gunsmith", "Artist", "Musician", "Manufacturing", 
   "Programmer", "Web designer", "System Administrator", "Database Administrator", 
   "Networking Engineer"
