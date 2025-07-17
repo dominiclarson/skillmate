@@ -44,10 +44,12 @@ export default function Home() {
               className="hover:shadow-lg transition w-full h-24"
             >
               <CardContent className="p-4 h-full flex items-center justify-center">
-                <h2 className="text-lg font-semibold break-words whitespace-normal text-center line-clamp-2">
-                  <span className="mr-2">{skill.emoji}</span>
-                  {skill.name}
-                </h2>
+                <Link href={`/search?skill=${skill.name}`}>
+                  <h2 className="text-lg font-semibold break-words whitespace-normal text-center line-clamp-2">
+                    <span className="mr-2">{skill.emoji}</span>
+                    {skill.name}
+                  </h2>
+                </Link>
               </CardContent>
             </Card>
           ))}

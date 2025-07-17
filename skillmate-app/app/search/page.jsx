@@ -32,7 +32,7 @@ export default function Page() {
   const handleSectionChange = (section) => {
     setActiveSection(section)
     const encodedName = encodeURIComponent(section.name)
-    router.push(`/dashboard?skill=${encodedName}`, { scroll: false })
+    router.push(`/search?skill=${encodedName}`, { scroll: false })
   }
   return (
     (<SidebarProvider>
