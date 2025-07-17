@@ -1,32 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-
-const skills = [
-  "Vehicle Mechanic",
-  "Farm/Industrial Mechanic",
-  "Machinist",
-  "Welder",
-  "Fabricator",
-  "Carpenter / Woodworker",
-  "Plumber",
-  "Electrician",
-  "Computer Repair / Building",
-  "Mobile device repair",
-  "Chef",
-  "Roofing/Framing",
-  "Finish work (trim, paint)",
-  "Structural Engineer",
-  "HVAC",
-  "Gunsmith",
-  "Artist",
-  "Musician",
-  "Manufacturing",
-  "Programmer",
-  "Web designer",
-  "System Administrator",
-  "Database Administrator",
-  "Networking Engineer",
-];
+import { skills } from "@/lib/skills";
 
 export default function Home() {
   return (
@@ -71,7 +45,8 @@ export default function Home() {
             >
               <CardContent>
                 <h2 className="text-xl font-semibold break-words whitespace-normal">
-                  {skill}
+                  <span className="mr-2">{skill.emoji}</span>
+                  {skill.name}
                 </h2>
               </CardContent>
             </Card>
