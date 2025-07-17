@@ -27,9 +27,9 @@ const data = {
   },
   skills: skills.map(skill => ({
     name: skill.name,
-    url: "#",
     icon: Frame,
     emoji: skill.emoji,
+    description: skill.description,
   })),
 }
 

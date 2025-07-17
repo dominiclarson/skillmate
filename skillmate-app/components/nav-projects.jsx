@@ -26,18 +26,15 @@ export function NavProjects({
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton 
-              asChild
               onClick={() => onSectionChange?.(item)}
               isActive={activeSection?.name === item.name}
             >
-              <a href={item.url}>
-                {item.emoji ? (
-                  <span className="text-base">{item.emoji}</span>
-                ) : (
-                  <item.icon />
-                )}
-                <span>{item.name}</span>
-              </a>
+              {item.emoji ? (
+                <span className="text-base">{item.emoji}</span>
+              ) : (
+                <item.icon />
+              )}
+              <span>{item.name}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}

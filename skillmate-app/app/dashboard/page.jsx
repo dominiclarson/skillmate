@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SkillDisplay } from "@/components/skill-display"
 import { Separator } from "@/components/ui/separator"
@@ -9,13 +10,33 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { findFirstSection } from "@/lib/skills"
+import { findFirstSection, allSections } from "@/lib/skills"
 
 export default function Page() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [activeSection, setActiveSection] = useState(findFirstSection())
+  
+  // URL parameter parsing
+  useEffect(() => {
+    const skillParam = searchParams.get('skill')
+    if (skillParam) {
+      const section = allSections.find(s => s.name === decodeURIComponent(skillParam))
+      if (section) {
+        setActiveSection(section)
+      }
+    }
+  }, [searchParams])
+  
+  // Handle section change with URL update
+  const handleSectionChange = (section) => {
+    setActiveSection(section)
+    const encodedName = encodeURIComponent(section.name)
+    router.push(`/dashboard?skill=${encodedName}`, { scroll: false })
+  }
   return (
     (<SidebarProvider>
-      <AppSidebar onSectionChange={setActiveSection} activeSection={activeSection} />
+      <AppSidebar onSectionChange={handleSectionChange} activeSection={activeSection} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4">
