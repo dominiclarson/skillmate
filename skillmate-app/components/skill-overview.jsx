@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-export function SkillDisplay({ activeSection }) {
+export function SkillOverview({ activeSection }) {
   return (
     <Accordion
       type="single"
