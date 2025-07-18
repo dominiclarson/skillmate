@@ -20,11 +20,6 @@ import {
 } from "@/components/ui/sidebar"
 
 const data = {
-  user: {
-    name: "John Doe",
-    email: "johndoe@example.com",
-    avatar: "user-image.jpg",
-  },
   skills: skills.map(skill => ({
     name: skill.name,
     icon: Frame,
