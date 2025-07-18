@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { skills } from "@/lib/skills";
+import { ModeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
             >
               Sign Up
             </Link>
+            <ModeToggle />
           </nav>
         </div>
       </header>
