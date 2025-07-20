@@ -26,7 +26,7 @@ export const skills = [
   },
   { 
     name: "Carpenter / Woodworker", 
-    emoji: "🪵",
+    emoji: "🧰",
     description: "Build, repair, and install wooden structures, furniture, and fixtures using traditional and modern woodworking techniques, tools, and materials for residential and commercial projects."
   },
   { 
