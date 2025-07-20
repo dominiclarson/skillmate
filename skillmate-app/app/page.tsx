@@ -5,11 +5,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { skills } from '@/lib/skills';
+//import { skills } from '@/lib/skills';
 
 export default function HomePage() {
   const router = useRouter();
   const [users, setUsers] = useState([]);
+  const [skills, setSkills] = useState([]);
+
 
   useEffect(() => {
     // Redirect to login 
@@ -24,24 +26,32 @@ export default function HomePage() {
       .then(res => res.json())
       .then(data => setUsers(data))
       .catch(() => setUsers([]));
+
+    // Fetch skills from the database
+    fetch('/api/skills')
+      .then(res => res.json())
+      .then(data => setSkills(data))
+      .catch(() => setSkills([]));
+
   }, [router]);
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Featured Skills</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
-        {skills.map(skill => (
+        {Array.isArray(skills) && skills.map(skill => (
           <Card key={skill.name} className="hover:shadow-lg transition w-full h-24">
             <CardContent className="p-4 h-full flex items-center justify-center">
               <Link href={`/search?skill=${encodeURIComponent(skill.name)}`}>
                 <h2 className="text-lg font-semibold text-center line-clamp-2">
-                  <span className="mr-2" role="img" aria-label={skill.name}>{skill.emoji}</span>
-                  {skill.name}
+                  <span className="mr-2" role="img" aria-label={skill.name}>{skill.emojiUnicode}</span>
+          {skill.name}
                 </h2>
               </Link>
             </CardContent>
           </Card>
-        ))}
+))}
+
       </div>
 
       <h2 className="text-xl font-semibold mb-4">Your Connections</h2>
