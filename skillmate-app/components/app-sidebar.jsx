@@ -8,7 +8,7 @@ import {
 
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
-import { skills } from "@/lib/skills"
+/* import { skills } from "@/lib/skills" */
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +19,15 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-const data = {
+
+
+export function AppSidebar({
+  onSectionChange,
+  activeSection,
+  skills,
+  ...props
+}) {
+  const data = {
   user: {
     name: "John Doe",
     email: "johndoe@example.com",
@@ -28,16 +36,9 @@ const data = {
   skills: skills.map(skill => ({
     name: skill.name,
     icon: Frame,
-    emoji: skill.emoji,
-    description: skill.description,
+    emoji: skill.emojiUnicode,
   })),
-}
-
-export function AppSidebar({
-  onSectionChange,
-  activeSection,
-  ...props
-}) {
+};
   return (
     (<Sidebar variant="inset" {...props}>
       <SidebarHeader>

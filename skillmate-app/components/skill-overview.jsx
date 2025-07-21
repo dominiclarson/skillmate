@@ -5,7 +5,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-export function SkillOverview({ activeSection }) {
+
+export function SkillOverview({ activeSection, skills }) {
+  if (!skills) return null;
+
   return (
     <Accordion
       type="single"
@@ -16,7 +19,7 @@ export function SkillOverview({ activeSection }) {
       <AccordionItem value="item-1">
         <AccordionTrigger>Skill Overview</AccordionTrigger>
         <AccordionContent>
-          <p>{activeSection.description}</p>
+          <p>{activeSection.description || "No description available."}</p>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

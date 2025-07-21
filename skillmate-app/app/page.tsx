@@ -45,8 +45,11 @@ export default function HomePage() {
               <Link href={`/search?skill=${encodeURIComponent(skill.name)}`}>
                 <h2 className="text-lg font-semibold text-center line-clamp-2">
                   <span className="mr-2" role="img" aria-label={skill.name}>{skill.emojiUnicode}</span>
-          {skill.name}
+                  {skill.name}
                 </h2>
+                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                    {skill.description || "No description available."}
+                    </p>
               </Link>
             </CardContent>
           </Card>
