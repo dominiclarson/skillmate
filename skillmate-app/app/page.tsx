@@ -118,9 +118,7 @@ export default function HomePage() {
   const featured = allSections.slice(0, 6);
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar */}
-      <AppSidebar onSectionChange={undefined} activeSection={undefined} />
-
+     
       {/* Main dashboard */}
       <main className="flex-1 px-8 py-10">
         <div className="max-w-4xl mx-auto space-y-8">
