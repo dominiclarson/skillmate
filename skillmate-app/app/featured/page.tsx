@@ -9,20 +9,21 @@ import { CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { X, Search } from 'lucide-react';
 import { SkillOverview } from '@/components/skill-overview';
+import { AppSidebar } from '@/components/app-sidebar';
 
 export default function FeaturedPage() {
   const [isAuth, setIsAuth] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSection, setActiveSection] = useState<Skill>(skills[0]);
 
-  // Check auth once
+
   useEffect(() => {
     fetch('/api/auth/session')
       .then(r => setIsAuth(r.ok))
       .catch(() => setIsAuth(false));
   }, []);
 
-  // Memoized filter
+  
   const filteredSkills = useMemo(() => {
     if (!searchTerm) return skills;
     const q = searchTerm.toLowerCase();
@@ -38,6 +39,7 @@ export default function FeaturedPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <main className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Header & Search */}
+
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-4xl font-bold">Featured Skills</h1>
           <div className="relative mt-4 sm:mt-0 w-full sm:w-auto">
@@ -63,6 +65,10 @@ export default function FeaturedPage() {
           </div>
         </div>
 
+        {/* Overview */}
+        <SkillOverview activeSection={activeSection} />
+
+      
         {/* Skill Grid */}
         {filteredSkills.length === 0 ? (
           <p className="text-center text-gray-500 py-16">
@@ -92,9 +98,7 @@ export default function FeaturedPage() {
           </div>
         )}
 
-        {/* Overview */}
-        <SkillOverview activeSection={activeSection} />
-
+        
         {/* Connections */}
         {isAuth && (
           <div className="pt-8 border-t">
