@@ -10,6 +10,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'react-toastify';
+import { AppSidebar } from '@/components/app-sidebar';
 
 interface SessionUser {
   name: string;
@@ -123,9 +124,13 @@ export default function ProfilePage() {
   }
 
   return (
+    
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       <main className="flex-1 max-w-3xl mx-auto p-8">
         <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
+
+         {/* Sidebar */}
+      <AppSidebar />
 
         {/* Tabs */}
         <div className="flex space-x-4 mb-8">

@@ -45,7 +45,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
-    "jest.config.js"
+    "jest.config.cjs"
 , "components/ui/sidebar.tsx"  ],
   "exclude": [
     "node_modules",

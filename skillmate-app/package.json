@@ -52,7 +52,7 @@
     "@types/testing-library__jest-dom": "^5.14.9",
     "@types/testing-library__react": "^10.0.1",
     "cypress": "^14.5.2",
-    "jest": "^30.0.4",
+    "jest": "^30.0.5",
     "next-test-api-route-handler": "^3.2.0",
     "supertest": "^7.1.3",
     "tailwindcss": "^4",

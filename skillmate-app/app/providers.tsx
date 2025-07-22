@@ -13,7 +13,7 @@ import { ThemeProvider, useTheme } from 'next-themes';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ChatFloatingButton } from '@/components/ChatFloatingButton';
-import { AppSidebar } from '@/components/app-sidebar';
+
 import { findFirstSection } from '@/lib/skills';
 import { Sun, Moon, MessageCircle } from 'lucide-react';
 
@@ -146,10 +146,7 @@ export default function Providers({ children }: { children: ReactNode }) {
       ) : (
         // Default layout: sidebar + centered content
         <div className="flex">
-          <AppSidebar
-            activeSection={activeSection}
-            onSectionChange={handleSectionChange}
-          />
+          
           <main className="flex-1 px-6 py-8 container mx-auto">
             {children}
           </main>
