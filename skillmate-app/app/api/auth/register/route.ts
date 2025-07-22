@@ -1,15 +1,24 @@
-export const runtime = 'nodejs';
+
+
+
 import { NextResponse } from 'next/server';
-import { createUser, setAuthCookie } from '@/lib/auth-file';
+import { createUser, setAuthCookie } from '@/lib/auth-utils';
 
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
+
+    // Create the user 
     const user = await createUser(email, password);
+
+    // Set a JWT cookie 
     await setAuthCookie({ id: user.id, email: user.email });
-    return NextResponse.json({ message: 'User registered' });
+
+    return NextResponse.json({ ok: true, user: { id: user.id, email: user.email } });
   } catch (err: any) {
-    const msg = err.message === 'exists' ? 'Email already registered' : 'Registration failed';
-    return NextResponse.json({ error: msg }, { status: 400 });
+    if (err.message === 'exists') {
+      return NextResponse.json({ error: 'User already exists' }, { status: 409 });
+    }
+    return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
   }
 }

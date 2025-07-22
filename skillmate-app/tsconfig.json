@@ -46,7 +46,7 @@
     "**/*.ts",
     "**/*.tsx",
     "jest.config.js"
-  ],
+, "components/ui/sidebar.tsx"  ],
   "exclude": [
     "node_modules",
     "cypress"

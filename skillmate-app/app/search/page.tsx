@@ -31,22 +31,21 @@ export default function Page() {
     }
   }, [searchParams]);
 
-  // Handle section change with URL update
   const handleSectionChange = (section) => {
     setActiveSection(section);
     const encodedName = encodeURIComponent(section.name);
     router.push(`/search?skill=${encodedName}`, { scroll: false });
   };
   return (
-    <SidebarProvider>
+    <SidebarProvider open={undefined} onOpenChange={undefined} className={undefined} style={undefined}>
       <AppSidebar
         onSectionChange={handleSectionChange}
         activeSection={activeSection}
       />
-      <SidebarInset>
+      <SidebarInset className={undefined}>
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
+            <SidebarTrigger className="-ml-1" onClick={undefined} />
             <Separator
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
