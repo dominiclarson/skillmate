@@ -3,68 +3,96 @@
 
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { toast } from 'react-toastify';
 
 export default function LoginPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const callbackUrl = params.get('callbackUrl') || '/';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
+
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        headers: { 'Content-Type': 'application/json' },
       });
+
+      const data = await res.json();
       if (res.ok) {
-        router.push(callbackUrl);
+        toast.success('Login successful!');
+        router.push('/');
       } else {
-        const data = await res.json();
-        setError(data.error ?? 'Login failed');
+        toast.error(data.error || 'Login failed');
       }
     } catch {
-      setError('Network error');
+      toast.error('Something went wrong');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto py-8">
-      <h1 className="mb-6 text-3xl font-bold text-center">Log In</h1>
-      {error && <p className="text-red-600 text-center">{error}</p>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        required
-        className="w-full rounded border px-3 py-2"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        required
-        className="w-full rounded border px-3 py-2"
-      />
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded bg-green-600 px-3 py-2 text-white disabled:opacity-60"
-      >
-        {loading ? 'Logging in…' : 'Log In'}
-      </button>
-    </form>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 px-4 py-12">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-md p-8">
+        <h2 className="text-3xl font-extrabold text-center text-gray-900 dark:text-white mb-6">
+          Welcome Back
+        </h2>
+        <p className="text-center text-gray-500 dark:text-gray-400 mb-8">
+          Login to your account to continue
+        </p>
+
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label htmlFor="email" className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+              Email address
+            </label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+              Password
+            </label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full"
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading} variant={undefined} size={undefined}>
+            {loading ? 'Logging in...' : 'Login'}
+          </Button>
+        </form>
+
+        <div className="text-center mt-6 text-sm text-gray-600 dark:text-gray-400">
+          Don’t have an account?{' '}
+          <a href="/signup" className="text-blue-600 dark:text-blue-400 hover:underline">
+            Sign up
+          </a>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,6 +1,7 @@
 
 
 
+
 import { NextResponse } from 'next/server';
 import { createUser, setAuthCookie } from '@/lib/auth-utils';
 
@@ -8,16 +9,18 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    // Create the user 
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Missing credentials' }, { status: 400 });
+    }
+
     const user = await createUser(email, password);
+    await setAuthCookie(user);
 
-    // Set a JWT cookie 
-    await setAuthCookie({ id: user.id, email: user.email });
-
-    return NextResponse.json({ ok: true, user: { id: user.id, email: user.email } });
+    return NextResponse.json({ ok: true });
   } catch (err: any) {
-    if (err.message === 'exists') {
-      return NextResponse.json({ error: 'User already exists' }, { status: 409 });
+    console.error('Registration error:', err); 
+    if (err.code === 'ER_DUP_ENTRY') {
+      return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
     }
     return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
   }

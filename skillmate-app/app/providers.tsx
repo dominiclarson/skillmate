@@ -12,7 +12,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ThemeProvider, useTheme } from 'next-themes';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ChatFloatingButton } from '@/components/ChatFloatingButton';
+
 
 import { findFirstSection } from '@/lib/skills';
 import { Sun, Moon, MessageCircle } from 'lucide-react';
@@ -153,8 +153,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      {/* Floating chat button when authenticated */}
-      {authenticated && <ChatFloatingButton />}
+    
     </ThemeProvider>
   );
 }

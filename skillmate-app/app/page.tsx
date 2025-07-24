@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { allSections, Skill } from '@/lib/skills';
-import { ChatFloatingButton } from '@/components/ChatFloatingButton';
+
 import { AppSidebar } from '@/components/app-sidebar';
 
 export default function HomePage() {
@@ -188,7 +188,7 @@ export default function HomePage() {
         </div>
       </main>
 
-      <ChatFloatingButton />
+    
     </div>
   );
 }

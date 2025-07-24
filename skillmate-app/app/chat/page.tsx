@@ -1,119 +1,155 @@
 
+
 'use client';
 
-import React, { useState, useEffect, useRef, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { AppSidebar } from '@/components/app-sidebar';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { MessageCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { SendHorizonal } from 'lucide-react';
+
+interface Friend {
+  id: number;
+  name: string;
+  email: string;
+}
 
 interface Message {
-  id: string;
-  userEmail: string;
-  text: string;
-  createdAt: string;
+  id: number;
+  content: string;
+  sender_id: number;
+  receiver_id: number;
+  timestamp: string;
 }
 
 export default function ChatPage() {
-  const router = useRouter();
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const endRef = useRef<HTMLDivElement>(null);
+  const [newMessage, setNewMessage] = useState('');
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
-  // Load initial messages
+  // Fetch session and friends
   useEffect(() => {
-    fetch('/api/chat/history')
-      .then(r => r.json())
-      .then((msgs: Message[]) => setMessages(msgs))
-      .catch(() => {});
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.session?.id) {
+          setCurrentUserId(data.session.id);
+          fetch('/api/chat/connections')
+            .then(res => res.json())
+            .then(setFriends)
+            .catch(err => console.error('Failed to load friends:', err));
+        } else {
+          console.error('Session data is missing or malformed:', data);
+        }
+      })
+      .catch(err => console.error('Failed to fetch session:', err));
   }, []);
 
-  // Poll every 3s
+  // Load messages 
   useEffect(() => {
-    const iv = setInterval(() => {
-      fetch('/api/chat/history')
-        .then(r => r.json())
-        .then((msgs: Message[]) => setMessages(msgs))
-        .catch(() => {});
-    }, 3000);
-    return () => clearInterval(iv);
-  }, []);
+    if (!selectedFriend) return;
+    fetch(`/api/chat/messages?userId=${selectedFriend.id}`)
+      .then(res => res.json())
+      .then(setMessages)
+      .catch(err => console.error('Failed to fetch messages:', err));
+  }, [selectedFriend]);
 
-  // Scroll on new
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  async function handleSend(e: FormEvent) {
-    e.preventDefault();
-    const text = input.trim();
-    if (!text) return;
+  // Send a message
+  const handleSend = async () => {
+    if (!newMessage.trim() || !selectedFriend || !currentUserId) return;
 
     const res = await fetch('/api/chat/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({
+        toUserId: selectedFriend.id,
+        content: newMessage.trim(),
+      }),
     });
+
     if (res.ok) {
-      setInput('');
-      // Immediately fetch updated list
-      fetch('/api/chat/history')
-        .then(r => r.json())
-        .then((msgs: Message[]) => setMessages(msgs));
-    } else if (res.status === 401) {
-      router.push('/login?callbackUrl=/chat');
+      const msg = {
+        id: Date.now(),
+        content: newMessage.trim(),
+        sender_id: currentUserId,
+        receiver_id: selectedFriend.id,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, msg]);
+      setNewMessage('');
     }
-  }
+  };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar */}
-      <AppSidebar />
-
-      {/* Chat content */}
-      <main className="flex-1 ml-64 px-6 py-8 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center space-x-2 mb-4">
-          <MessageCircle className="text-blue-600" size={28} />
-          <h1 className="text-2xl font-bold">Community Chat</h1>
-        </div>
-
-        {/* Messages container */}
-        <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {messages.map(msg => (
-              <div
-                key={msg.id}
-                className="break-words px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700"
+    <div className="flex h-[calc(100vh-64px)]">
+      {/* Sidebar  */}
+      <div className="w-1/3 border-r overflow-y-auto p-4 bg-gray-100 dark:bg-gray-900">
+        <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Friends</h2>
+        {friends.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400">No connections</p>
+        ) : (
+          <ul className="space-y-2">
+            {friends.map(friend => (
+              <li
+                key={friend.id}
+                className={`cursor-pointer p-2 rounded hover:bg-blue-100 dark:hover:bg-gray-700 ${
+                  selectedFriend?.id === friend.id ? 'bg-blue-200 dark:bg-gray-700' : ''
+                }`}
+                onClick={() => setSelectedFriend(friend)}
               >
-                <div className="text-xs text-gray-600 dark:text-gray-300">
-                  {msg.userEmail}{' '}
-                  <span className="text-gray-500 dark:text-gray-400">
-                    {new Date(msg.createdAt).toLocaleTimeString()}
-                  </span>
-                </div>
-                <div>{msg.text}</div>
-              </div>
+                <div className="font-medium text-gray-800 dark:text-white">{friend.name}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{friend.email}</div>
+              </li>
             ))}
-            <div ref={endRef} />
-          </div>
+          </ul>
+        )}
+      </div>
 
-          {/* Input area */}
-          <form onSubmit={handleSend} className="px-4 py-3 border-t dark:border-gray-700">
-            <div className="flex items-center space-x-2">
-              <Input
-                type="text"
-                placeholder="Type your message…"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                className="flex-1"
-              />
-              <Button type="submit" className={undefined} variant={undefined} size={undefined}>Send</Button>
+      {/* Chat window */}
+      <div className="flex-1 flex flex-col p-4">
+        {selectedFriend ? (
+          <>
+            <div className="border-b pb-2 mb-4">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+                Chat with {selectedFriend.name}
+              </h3>
             </div>
-          </form>
-        </div>
-      </main>
+
+            <div className="flex-1 overflow-y-auto space-y-2 mb-4 px-2">
+              {messages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={`max-w-xs px-3 py-2 rounded-lg ${
+                    msg.sender_id === currentUserId
+                      ? 'ml-auto bg-blue-500 text-white'
+                      : 'mr-auto bg-gray-200 text-gray-900'
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                value={newMessage}
+                onChange={e => setNewMessage(e.target.value)}
+                className="flex-1 border px-3 py-2 rounded dark:bg-gray-800 dark:text-white"
+                placeholder="Type a message..."
+              />
+              <button
+                onClick={handleSend}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center gap-1"
+              >
+                <SendHorizonal size={16} />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="text-gray-500 dark:text-gray-400 text-center mt-20">
+            Select a friend to start chatting.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

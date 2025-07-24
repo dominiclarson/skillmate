@@ -1,52 +1,74 @@
 
 
 
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+
+
+import pool from './db'; 
+import bcrypt from 'bcryptjs'; 
+import jwt from 'jsonwebtoken'; 
 import { cookies } from 'next/headers';
-import { readUsers, writeUsers, User } from './file-store';
 
-const saltRounds = 10;
-const secret = process.env.JWT_SECRET || 'dev_secret_key';
-const cookieName = process.env.COOKIE_NAME || 'skm_token';
+const JWT_SECRET = process.env.JWT_SECRET!;
+const COOKIE_NAME = process.env.COOKIE_NAME!;
 
-export async function createUser(email: string, password: string): Promise<User> {
-  const users = await readUsers();
-  if (users.some(u => u.email === email)) {
-    throw new Error('exists');
-  }
-  const hash = await bcrypt.hash(password, saltRounds);
-  const user: User = { id: Date.now(), email, hash };
-  await writeUsers([...users, user]);
-  return user;
+// Registeruser
+export async function createUser(email: string, password: string) {
+  const hashed = await bcrypt.hash(password, 10); 
+  const [result] = await pool.execute(
+    'INSERT INTO Users (email, password) VALUES (?, ?)',
+    [email, hashed]
+  );
+  const insertId = (result as any).insertId;
+  return { id: insertId, email };
 }
 
-export async function findUserByEmail(email: string): Promise<User | undefined> {
-  const users = await readUsers();
-  return users.find(u => u.email === email);
+// user by email
+export async function findUserByEmail(email: string) {
+  const [rows] = await pool.execute(
+    'SELECT id, email, password FROM Users WHERE email = ? LIMIT 1',
+    [email]
+  );
+  const list = rows as Array<{ id: number; email: string; password: string }>;
+  return list[0] || null;
 }
 
-export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
+
+export async function verifyPassword(plain: string, hash: string) {
   return bcrypt.compare(plain, hash);
 }
 
-export async function setAuthCookie(payload: object) {
-  const token = jwt.sign(payload, secret, { expiresIn: '7d' });
+
+export async function setAuthCookie(user: { id: number; email: string }) {
+  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
   (await cookies()).set({
-    name: cookieName,
+    name: COOKIE_NAME,
     value: token,
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24 * 7, 
   });
 }
 
+
 export async function clearAuthCookie() {
   (await cookies()).set({
-    name: cookieName,
+    name: COOKIE_NAME,
     value: '',
+    httpOnly: true,
     path: '/',
     maxAge: 0,
   });
+}
+
+
+export async function getSession() {
+  const store = await cookies();
+  const token = store.get(COOKIE_NAME)?.value;
+  if (!token) return null;
+  try {
+    return jwt.verify(token, JWT_SECRET) as { id: number; email: string };
+  } catch {
+    return null; 
+  }
 }

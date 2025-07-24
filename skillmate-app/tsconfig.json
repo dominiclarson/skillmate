@@ -46,7 +46,7 @@
     "**/*.ts",
     "**/*.tsx",
     "jest.config.cjs"
-, "components/ui/sidebar.tsx", "scripts/test-db.cjs", "lib/db.js"  ],
+, "components/ui/sidebar.tsx", "scripts/test-db.cjs", "lib/db.ts"  ],
   "exclude": [
     "node_modules",
     "cypress"
