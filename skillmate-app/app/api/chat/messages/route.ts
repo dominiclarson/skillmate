@@ -1,20 +1,36 @@
 
 
-import { getSession } from '@/lib/auth-utils';
+
+
+import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/auth-utils';
 
-export async function POST(req: NextRequest) {
+export async function GET(req: Request) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-  const { toUserId, content } = await req.json();
-  if (!toUserId || !content) return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+  const { searchParams } = new URL(req.url);
+  const toUserId = searchParams.get('userId');
 
-  await pool.execute(
-    `INSERT INTO Messages (sender_id, receiver_id, content) VALUES (?, ?, ?)`,
-    [session.id, toUserId, content]
-  );
+  if (!toUserId) {
+    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+  }
 
-  return NextResponse.json({ success: true });
+  try {
+    const [messages] = await pool.execute(
+      `SELECT * FROM Messages 
+       WHERE (sender_id = ? AND receiver_id = ?) 
+          OR (sender_id = ? AND receiver_id = ?)
+       ORDER BY created_at ASC`,
+      [session.id, toUserId, toUserId, session.id]
+    );
+
+    return NextResponse.json(messages);
+  } catch (err) {
+    console.error('Message fetch error:', err);
+    return NextResponse.json({ error: 'Failed to load messages' }, { status: 500 });
+  }
 }
