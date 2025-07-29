@@ -48,12 +48,6 @@ export default function HomePage() {
         <section className="relative flex-1 bg-primary text-white from-primary to-primary/80">
           <div className="absolute inset-0 bg-pattern opacity-20"></div>
           <div className="relative flex flex-col items-center justify-center px-6 py-24 text-center">
-            <div className="mb-6">
-              <Badge variant="secondary" className="mb-4">
-                <Star className="w-4 h-4 mr-1" />
-                Trusted by XXX+ Users
-              </Badge>
-            </div>
             <h1 className="text-6xl font-bold mb-6 tracking-tight">
               Find the Perfect Skill Match
             </h1>
@@ -78,7 +72,7 @@ export default function HomePage() {
                 <Button 
                   variant="default"
                   size="default"
-                  className="rounded-full px-8 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 text-foreground" 
+                  className="rounded-full px-8 shadow-lg transition-all duration-200 flex items-center gap-2 text-white" 
                   onClick={() => console.log('search', query)}
                 >
                   <Search size={16} />
