@@ -64,7 +64,7 @@ export default function Providers({ children }: { children: ReactNode }) {
 
     return (
       <header className="bg-white dark:bg-black shadow sticky top-0 z-50">
-        <div className="container mx-auto flex items-center justify-between py-4 px-6">
+        <div className="container mx-auto flex items-center justify-between py-4">
           <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:opacity-80 transition">
             SkillMate
           </Link>
@@ -147,7 +147,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         // Default layout: sidebar + centered content
         <div className="flex">
           
-          <main className="flex-1 px-6 py-8 container mx-auto">
+          <main className="flex-1 py-8 container mx-auto">
             {children}
           </main>
         </div>
