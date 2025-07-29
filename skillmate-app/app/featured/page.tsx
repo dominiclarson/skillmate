@@ -36,14 +36,14 @@ export default function FeaturedPage() {
   const clearSearch = () => setSearchTerm('');
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Header & Search */}
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-4xl font-bold">Featured Skills</h1>
+          <h1 className="text-4xl font-bold text-foreground">Featured Skills</h1>
           <div className="relative mt-4 sm:mt-0 w-full sm:w-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             <Input
               type="search"
               aria-label="Search skills"
@@ -57,7 +57,7 @@ export default function FeaturedPage() {
                 type="button"
                 onClick={clearSearch}
                 aria-label="Clear search"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 <X size={18} />
               </button>
@@ -71,8 +71,8 @@ export default function FeaturedPage() {
       
         {/* Skill Grid */}
         {filteredSkills.length === 0 ? (
-          <p className="text-center text-gray-500 py-16">
-            No skills match “{searchTerm}”.
+          <p className="text-center text-muted-foreground py-16">
+            No skills match "{searchTerm}".
           </p>
         ) : (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -85,12 +85,12 @@ export default function FeaturedPage() {
                   hover:scale-105 hover:shadow-lg rounded-lg border p-6 flex flex-col items-center
                   ${
                     activeSection.id === skill.id
-                      ? 'bg-blue-100 dark:bg-blue-900 border-blue-500'
-                      : 'bg-white dark:bg-gray-800 border-transparent'
+                      ? 'bg-accent border-primary text-accent-foreground'
+                      : 'bg-card border-border text-card-foreground hover:bg-accent/50'
                   }`}
               >
                 <span className="text-5xl mb-4">{skill.emoji}</span>
-                <span className="text-lg font-semibold group-hover:text-blue-600">
+                <span className="text-lg font-semibold group-hover:text-primary transition-colors">
                   {skill.name}
                 </span>
               </button>
@@ -101,11 +101,11 @@ export default function FeaturedPage() {
         
         {/* Connections */}
         {isAuth && (
-          <div className="pt-8 border-t">
-            <h2 className="text-2xl font-semibold mb-2">Your Connections</h2>
-            <p className="text-gray-500">
+          <div className="pt-8 border-t border-border">
+            <h2 className="text-2xl font-semibold mb-2 text-foreground">Your Connections</h2>
+            <p className="text-muted-foreground">
               Manage your chats on the{' '}
-              <Link href="/chat" className="text-blue-500 hover:underline">
+              <Link href="/chat" className="text-primary hover:underline">
                 Chat page
               </Link>.
             </p>
