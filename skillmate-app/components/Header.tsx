@@ -43,7 +43,7 @@ export default function Header({ authenticated, onLogout }: HeaderProps) {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <header className="bg-white dark:bg-black shadow sticky top-0 z-50">
+    <header className="bg-background sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           <Link href="/" className="text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400 hover:opacity-80 transition">

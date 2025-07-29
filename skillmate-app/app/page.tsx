@@ -45,7 +45,7 @@ export default function HomePage() {
     return (
       <div className="flex flex-col min-h-screen">
         {/* Hero */}
-        <section className="relative flex-1 bg-gradient-to-br from-primary to-primary/80">
+        <section className="relative flex-1 bg-primary text-white from-primary to-primary/80">
           <div className="absolute inset-0 bg-pattern opacity-20"></div>
           <div className="relative flex flex-col items-center justify-center px-6 py-24 text-center">
             <div className="mb-6">
@@ -55,10 +55,7 @@ export default function HomePage() {
               </Badge>
             </div>
             <h1 className="text-6xl font-bold mb-6 tracking-tight">
-              Find the Perfect
-              <span className="bg-gradient-to-r from-accent-foreground to-muted-foreground bg-clip-text text-transparent block">
-                Skill Match
-              </span>
+              Find the Perfect Skill Match
             </h1>
             <p className="mb-8 text-xl max-w-2xl leading-relaxed">
               Connect with trusted local experts—mechanics, chefs, designers, and more. 
@@ -141,7 +138,7 @@ export default function HomePage() {
         </section>
 
         {/* CTA */}
-        <section className="w-full bg-muted py-20">
+        <section className="w-full bg-muted py-20 text-white">
           <div className="container mx-auto px-6">
             <div className="bg-gradient-to-r from-primary to-primary/80 rounded-3xl p-12 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-pattern opacity-20"></div>
