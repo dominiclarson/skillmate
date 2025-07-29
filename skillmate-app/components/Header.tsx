@@ -70,7 +70,7 @@ export default function Header({ authenticated, onLogout }: HeaderProps) {
 
             {!authenticated ? (
               <>
-                <Button variant="default" size="sm" className="text-foreground" asChild>
+                <Button variant="default" size="sm" className="text-white" asChild>
                   <Link href="/login">
                     Login
                   </Link>

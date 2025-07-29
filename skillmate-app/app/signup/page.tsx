@@ -5,67 +5,121 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { toast } from 'react-toastify';
+import Link from 'next/link';
+
+const formSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
 
 export default function SignupPage() {
   const router = useRouter();
   const params = useSearchParams();
   const callbackUrl = params.get('callbackUrl') || '/';
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
+
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(values),
       });
+      
+      const data = await res.json();
       if (res.ok) {
+        toast.success('Account created successfully!');
         router.push(callbackUrl);
       } else {
-        const data = await res.json();
-        setError(data.error || 'Signup failed');
+        toast.error(data.error || 'Signup failed');
       }
     } catch {
-      setError('Network error');
+      toast.error('Something went wrong');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto py-8">
-      <h1 className="mb-6 text-3xl font-bold text-center">Sign Up</h1>
-      {error && <p className="text-red-600 text-center">{error}</p>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        required
-        className="w-full rounded border px-3 py-2"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        required
-        minLength={6}
-        className="w-full rounded border px-3 py-2"
-      />
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded bg-blue-600 px-3 py-2 text-white disabled:opacity-60"
-      >
-        {loading ? 'Signing up…' : 'Sign Up'}
-      </button>
-    </form>
+    <div className="flex items-center justify-center bg-gradient-to-br from-muted to-secondary px-4 py-12 flex-1">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-extrabold">
+            Create Account
+          </CardTitle>
+          <CardDescription className="">
+            Sign up to join SkillMate community
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="">
+                    <FormLabel className="">Email address</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="you@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className=""/>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem className="">
+                    <FormLabel className="">Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="At least 6 characters"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="" />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" variant="default" size="default" className="w-full" disabled={loading}>
+                {loading ? 'Creating account...' : 'Sign Up'}
+              </Button>
+            </form>
+          </Form>
+
+          <div className="text-center mt-6 text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <Link href="/login" className="text-primary hover:underline">
+              Sign in
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

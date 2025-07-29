@@ -85,13 +85,13 @@ export default function Providers({ children }: { children: ReactNode }) {
         enableSystem
         disableTransitionOnChange
       >
-        <div>
-          <Header
-            authenticated={authenticated || false}
-            onLogout={handleLogout}
-          />
+        <Header
+          authenticated={authenticated || false}
+          onLogout={handleLogout}
+        />
+        <main className="flex-1 flex flex-col">
           {children}
-        </div>
+        </main>
       </ThemeProvider>
     </AuthContext.Provider>
   );
