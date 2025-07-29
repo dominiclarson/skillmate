@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 import Providers from "./providers";
+import Header from "@/components/Header";
 
 export const metadata = {
   title: "SkillMate",
@@ -15,11 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen">
-        <ThemeProvider>
-          <div>
-            {children}
-          </div>
-        </ThemeProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

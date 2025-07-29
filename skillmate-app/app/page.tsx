@@ -51,7 +51,7 @@ export default function HomePage() {
             <div className="mb-6">
               <Badge variant="secondary" className="bg-blue-500/20 text-blue-100 hover:bg-blue-500/30 mb-4">
                 <Star className="w-4 h-4 mr-1" />
-                Trusted by 1,000+ Users
+                Trusted by XXX+ Users
               </Badge>
             </div>
             <h1 className="text-6xl font-bold mb-6 tracking-tight">
@@ -92,10 +92,6 @@ export default function HomePage() {
 
             <div className="flex items-center gap-8 text-blue-100">
               <div className="flex items-center gap-2">
-                <Users size={20} />
-                <span className="text-sm">1,000+ Experts</span>
-              </div>
-              <div className="flex items-center gap-2">
                 <Zap size={20} />
                 <span className="text-sm">Instant Matching</span>
               </div>
@@ -123,7 +119,7 @@ export default function HomePage() {
               {filtered.map((skill: Skill) => (
                 <Link key={skill.id} href={`/featured`}>
                   <Card className="group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-0 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-gray-700 hover:from-blue-50 hover:to-blue-100 dark:hover:from-gray-700 dark:hover:to-gray-600">
-                    <CardContent className="flex flex-col items-center p-6 relative overflow-hidden">
+                    <CardContent className="flex flex-col items-center p-6 relative overflow-hidden h-[180]">
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <div className="relative z-10 flex flex-col items-center">
                         <div className="text-5xl mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -174,7 +170,7 @@ export default function HomePage() {
 
         {/* Footer */}
         <footer className="w-full bg-gradient-to-r from-gray-900 to-gray-800 py-12">
-          <div className="container mx-auto px-6">
+          <div className="container mx-auto">
             <div className="text-center">
               <h3 className="text-2xl font-bold text-white mb-2">SkillMate</h3>
               <p className="text-gray-400 mb-6">Connecting skills, building communities</p>
