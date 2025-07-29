@@ -38,15 +38,19 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
-    "jest.config.cjs"
-, "components/ui/sidebar.tsx", "scripts/test-db.cjs", "lib/db.ts"  ],
+    "jest.config.cjs",
+    "components/ui/sidebar.tsx",
+    "scripts/test-db.cjs",
+    "lib/db.ts"
+  ],
   "exclude": [
     "node_modules",
     "cypress"
