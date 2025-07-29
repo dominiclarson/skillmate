@@ -115,7 +115,7 @@ export default function SignupPage() {
           <div className="text-center mt-6 text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link href="/login" className="text-primary hover:underline">
-              Sign in
+              Log in
             </Link>
           </div>
         </CardContent>
