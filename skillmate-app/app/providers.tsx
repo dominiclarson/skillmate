@@ -79,7 +79,12 @@ export default function Providers({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={authValue}>
       <ToastContainer position="bottom-right" />
-      <ThemeProvider>
+      <ThemeProvider 
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
         <div>
           <Header
             authenticated={authenticated || false}

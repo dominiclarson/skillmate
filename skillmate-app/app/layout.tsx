@@ -1,7 +1,5 @@
-import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 import Providers from "./providers";
-import Header from "@/components/Header";
 
 export const metadata = {
   title: "SkillMate",

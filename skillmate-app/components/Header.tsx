@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
+import { ModeToggle } from './theme-toggle';
 
 interface HeaderProps {
   authenticated: boolean;
@@ -21,8 +22,16 @@ interface HeaderProps {
 }
 
 export default function Header({ authenticated, onLogout }: HeaderProps) {
-  const { theme, setTheme } = useTheme();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -61,7 +70,7 @@ export default function Header({ authenticated, onLogout }: HeaderProps) {
 
             {!authenticated ? (
               <>
-                <Button variant="default" size="sm" className="" asChild>
+                <Button variant="default" size="sm" className="text-foreground" asChild>
                   <Link href="/login">
                     Login
                   </Link>
@@ -90,28 +99,12 @@ export default function Header({ authenticated, onLogout }: HeaderProps) {
               </>
             )}
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className=""
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-            </Button>
+            <ModeToggle />
           </nav>
 
           {/* Mobile Navigation */}
           <div className="md:hidden flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className=""
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-            </Button>
+            <ModeToggle />
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
