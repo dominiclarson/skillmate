@@ -1,8 +1,5 @@
 
 
-
-
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,6 +8,7 @@ import {
   ThumbsUp, ThumbsDown, Users
 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { skills, Skill } from '@/lib/skills';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState({ name: '', bio: '', email: '' });
@@ -19,6 +17,7 @@ export default function ProfilePage() {
   const [pendingRequests, setPendingRequests] = useState<number[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<any[]>([]);
   const [confirmedFriends, setConfirmedFriends] = useState<any[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
   useEffect(() => {
     // Fetch logged-in user profile
@@ -64,7 +63,7 @@ export default function ProfilePage() {
     await fetch('/api/profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: profile.name, bio: profile.bio }),
+      body: JSON.stringify({ name: profile.name, bio: profile.bio }), // Need to add skills to user profiles on database
     });
     setEditing(false);
     toast.success('Profile updated');
@@ -131,6 +130,29 @@ export default function ProfilePage() {
             rows={4}
             disabled={!editing}
           />
+        </div>
+
+        <div>
+          <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I'm interested in</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {skills.map(skill => (
+              <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
+                <input
+                  type="checkbox"
+                  checked={selectedSkills.includes(skill.name)}
+                  onChange={() => {
+                    setSelectedSkills(prev =>
+                      prev.includes(skill.name)
+                        ? prev.filter(s => s !== skill.name)
+                        : [...prev, skill.name]
+                    );
+                  }}
+                  disabled={!editing}
+                />
+                {skill.name}
+              </label>
+            ))}
+          </div>
         </div>
 
         <div className="flex justify-end gap-4">
