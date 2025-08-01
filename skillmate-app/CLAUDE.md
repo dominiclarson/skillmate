@@ -4,80 +4,60 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-### Development Server
-- `npm run dev` - Start development server with Turbopack at http://localhost:3000
-
-### Build & Production
-- `npm run build` - Build production version
-- `npm start` - Start production server
-- `npm run lint` - Run Next.js linter
-
-### Testing
-- `npm run test` - Run all Jest tests with update snapshots
-- `npm run test:unit` - Run unit tests for auth file (jest tests/auth-utils.test.ts)
-- `npm run test:api` - Run API tests for auth endpoints (jest __tests__/auth-api.test.ts)
-- `npm run cy:open` - Open Cypress test runner
-- `npm run cy:run` - Run Cypress tests headlessly
-- `npm run test:db` - Test database connection using ts-node script
+- **Start development server**: `npm run dev` (uses Turbopack)
+- **Build for production**: `npm run build`
+- **Run linting**: `npm run lint`
+- **Run all tests**: `npm test`
+- **Run specific unit tests**: `npm run test:unit`
+- **Run API tests**: `npm run test:api`
+- **Test database connection**: `npm run test:db`
+- **Cypress E2E testing**: `npm run cy:open` (interactive) or `npm run cy:run` (headless)
 
 ## Architecture Overview
 
-### Tech Stack
-- **Framework**: Next.js 15 with App Router and TypeScript
+**SkillMate** is a Next.js 15 skill-swapping application with App Router architecture:
+
+### Core Structure
+- **Frontend**: React 19 + Next.js 15 with App Router
 - **Database**: MySQL with mysql2 connection pooling
-- **Authentication**: JWT tokens with httpOnly cookies
-- **UI**: React 19, Tailwind CSS, Radix UI components
-- **Form Validation**: React Hook Form with Zod schemas
-- **Testing**: Jest for unit tests, Cypress for e2e tests
+- **Authentication**: JWT-based auth with secure httpOnly cookies
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **Forms**: react-hook-form with zod validation
+- **Testing**: Jest for unit/API tests, Cypress for E2E
 
-### Database Connection
-The app uses MySQL connection pooling via `lib/db.ts`. Database credentials are managed through environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME). Test database connectivity with `npm run test:db`.
+### Key Directories
+- `app/`: Next.js App Router pages and API routes
+- `components/`: Reusable UI components (shadcn/ui based)
+- `lib/`: Core utilities (auth, database, chat, friends, skills)
+- `types/`: TypeScript type definitions
+- `tests/`: Jest unit tests
+- `cypress/`: E2E test specifications
 
-### Authentication System
-Authentication is handled through:
-- JWT tokens stored in httpOnly cookies
-- `lib/auth-utils.ts` provides core auth functions: createUser, findUserByEmail, setAuthCookie, getSession
-- `app/middleware.ts` protects routes `/profile` and `/chat`
-- Session management uses JWT_SECRET and COOKIE_NAME environment variables
+### Authentication Flow
+Uses custom JWT implementation in `lib/auth-utils.ts` with:
+- User registration/login via bcrypt password hashing
+- JWT tokens stored in secure httpOnly cookies
+- Session management with automatic expiration
+- Middleware protection for authenticated routes
 
-### API Structure
-API routes follow Next.js App Router conventions in `app/api/`:
-- **Auth**: `/api/auth/[login|logout|register|session]`
-- **Chat**: `/api/chat/[messages|send|connections]`
-- **Friends**: `/api/friends/[request|pending|incoming|confirmed]`
-- **Profile & Users**: `/api/[profile|users]`
+### Database Layer
+- Connection pooling via `lib/db.ts`
+- Environment variables for DB credentials (DB_HOST, DB_USER, DB_PASS, DB_NAME)
+- User, message, and friend relationship tables
 
-### Core Features
-1. **Skill Trading Platform**: Users have skills defined in `lib/skills.ts` with predefined skill categories
-2. **Friend System**: Friend requests with pending/accepted/rejected states
-3. **Real-time Chat**: Message system between connected users
-4. **User Profiles**: Profile management with skill associations
+### Component Architecture
+- shadcn/ui component library for consistent design
+- Theme provider for dark/light mode switching
+- Sidebar navigation with authenticated/unauthenticated states
+- Real-time chat functionality with message persistence
 
-### Key Components
-- **NavBar**: Main navigation with theme toggle
-- **Chat System**: ChatInput and ChatMessageList components
-- **Sidebar**: App sidebar with navigation projects and user components
-- **Theme**: Dark/light mode support via next-themes
+### Path Aliases
+- `@/*`: Root directory imports
+- `@/lib/*`: Library utilities
+- `@/components/*`: UI components
 
-### Type Definitions
-- `types/chat.ts`: ChatMessage interface
-- `types/friend.ts`: FriendRequest interface
-- Component props use TypeScript throughout
-
-### Data Flow
-- Authentication state flows through JWT cookies and session helpers
-- Chat messages are stored in MySQL Messages table
-- Friend relationships managed through database with status tracking
-- Skills are statically defined in `lib/skills.ts` but associated with users dynamically
-
-### Environment Configuration
+## Environment Requirements
 Required environment variables:
-- `JWT_SECRET` - Secret key for JWT token signing
-- `COOKIE_NAME` - Name for authentication cookie
-- `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME` - MySQL database credentials
-
-### Testing Structure
-- Jest configuration uses ts-jest preset with module path mapping (`@/` -> root)
-- Unit tests located in `/tests` directory
-- API tests use next-test-api-route-handler for testing Next.js API routes
-- Cypress E2E tests configured for http://localhost:3000 base URL
+- `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`: Database connection
+- `JWT_SECRET`: JWT token signing key
+- `COOKIE_NAME`: Authentication cookie identifier
