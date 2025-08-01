@@ -14,11 +14,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Testing
 - `npm run test` - Run all Jest tests with update snapshots
-- `npm run test:unit` - Run unit tests for auth file
-- `npm run test:api` - Run API tests for auth endpoints
+- `npm run test:unit` - Run unit tests for auth file (jest tests/auth-utils.test.ts)
+- `npm run test:api` - Run API tests for auth endpoints (jest __tests__/auth-api.test.ts)
 - `npm run cy:open` - Open Cypress test runner
 - `npm run cy:run` - Run Cypress tests headlessly
-- `npm run test:db` - Test database connection
+- `npm run test:db` - Test database connection using ts-node script
 
 ## Architecture Overview
 
@@ -27,10 +27,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Database**: MySQL with mysql2 connection pooling
 - **Authentication**: JWT tokens with httpOnly cookies
 - **UI**: React 19, Tailwind CSS, Radix UI components
+- **Form Validation**: React Hook Form with Zod schemas
 - **Testing**: Jest for unit tests, Cypress for e2e tests
 
 ### Database Connection
-The app uses MySQL connection pooling via `lib/db.ts`. Database credentials are managed through environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME).
+The app uses MySQL connection pooling via `lib/db.ts`. Database credentials are managed through environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME). Test database connectivity with `npm run test:db`.
 
 ### Authentication System
 Authentication is handled through:
@@ -67,4 +68,16 @@ API routes follow Next.js App Router conventions in `app/api/`:
 - Authentication state flows through JWT cookies and session helpers
 - Chat messages are stored in MySQL Messages table
 - Friend relationships managed through database with status tracking
-- Skills are statically defined but associated with users dynamically
+- Skills are statically defined in `lib/skills.ts` but associated with users dynamically
+
+### Environment Configuration
+Required environment variables:
+- `JWT_SECRET` - Secret key for JWT token signing
+- `COOKIE_NAME` - Name for authentication cookie
+- `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME` - MySQL database credentials
+
+### Testing Structure
+- Jest configuration uses ts-jest preset with module path mapping (`@/` -> root)
+- Unit tests located in `/tests` directory
+- API tests use next-test-api-route-handler for testing Next.js API routes
+- Cypress E2E tests configured for http://localhost:3000 base URL
