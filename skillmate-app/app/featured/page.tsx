@@ -4,17 +4,22 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import { skills, Skill } from '@/lib/skills';
-import { CardContent } from '@/components/ui/card';
+import { useRouter, useSearchParams } from "next/navigation";
+//import { skills, Skill } from '@/lib/skills';
+//import { CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { X, Search } from 'lucide-react';
 import { SkillOverview } from '@/components/skill-overview';
-import { AppSidebar } from '@/components/app-sidebar';
+//import { AppSidebar } from '@/components/app-sidebar';
+
 
 export default function FeaturedPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isAuth, setIsAuth] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeSection, setActiveSection] = useState<Skill>(skills[0]);
+  const [skills, setSkills] = useState([]);
+  const [activeSection, setActiveSection] = useState(null);
 
 
   useEffect(() => {
@@ -23,6 +28,16 @@ export default function FeaturedPage() {
       .catch(() => setIsAuth(false));
   }, []);
 
+  useEffect(()=> {
+    fetch('/api/skills')
+      .then(res => res.json())
+      .then(data => {
+        setSkills(data);
+        if (!searchParams.get('skill') && data.length > 0) {
+        setActiveSection(data[0]);
+        }})
+      .catch(err => console.error('Fetch error(skills):', err));
+  }, []);
   
   const filteredSkills = useMemo(() => {
     if (!searchTerm) return skills;

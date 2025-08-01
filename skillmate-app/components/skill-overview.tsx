@@ -3,7 +3,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState }  from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -13,6 +13,15 @@ import {
 import { Skill } from '@/lib/skills';
 
 export function SkillOverview({ activeSection }: { activeSection: Skill }) {
+  const [skills, setSkills] = useState([]);
+
+  useEffect(()=> {
+    fetch('/api/skills')
+      .then(res => res.json())
+      .then(data => {setSkills(data);})
+      .catch(err => console.error('Fetch error(skills):', err));
+    }, []);
+
   return (
     <Accordion
       type="single"
