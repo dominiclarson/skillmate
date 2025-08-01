@@ -11,7 +11,8 @@ import { toast } from 'react-toastify';
 import { skills, Skill } from '@/lib/skills';
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState({ name: '', bio: '', email: '' });
+  const [profile, setProfile] = useState({ name: '', bio: '', email: '' ,selectedSkills:''});
+  const [skillIDs] = useState([]);
   const [editing, setEditing] = useState(false);
   const [otherUsers, setOtherUsers] = useState([]);
   const [pendingRequests, setPendingRequests] = useState<number[]>([]);
@@ -26,9 +27,14 @@ export default function ProfilePage() {
       .then(data => setProfile({
         name: data?.name || '',
         bio: data?.bio || '',
-        email: data?.email || ''
+        email: data?.email || '',
+        selectedSkills:data?.skill_id
       }))
       .catch(err => console.error('Failed to load profile:', err));
+
+    //fetch('/api/skills')
+     // .then(res = res.json())
+      //.then(data => skillIDs)
 
     // Fetch other users
     fetch('/api/users')
@@ -63,10 +69,13 @@ export default function ProfilePage() {
     await fetch('/api/profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: profile.name, bio: profile.bio }), // Need to add skills to user profiles on database
-    });
+      body: JSON.stringify({ name: profile.name, bio: profile.bio, skills: profile.selectedSkills}), // Need to add skills to user profiles on database
+    }
+  );
+
     setEditing(false);
     toast.success('Profile updated');
+    console.log(selectedSkills);
   };
 
   // Send a friend request
@@ -139,14 +148,16 @@ export default function ProfilePage() {
               <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
                 <input
                   type="checkbox"
-                  checked={selectedSkills.includes(skill.name)}
+                  checked={selectedSkills.includes(skill.id)}
                   onChange={() => {
                     setSelectedSkills(prev =>
-                      prev.includes(skill.name)
-                        ? prev.filter(s => s !== skill.name)
-                        : [...prev, skill.name]
+                      prev.includes(skill.id)
+                        ? prev.filter(s => s !== skill.id)
+                        : [...prev, skill.id]
+
                     );
                   }}
+                  
                   disabled={!editing}
                 />
                 {skill.name}
