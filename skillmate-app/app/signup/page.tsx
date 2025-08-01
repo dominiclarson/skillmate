@@ -22,8 +22,9 @@ const formSchema = z.object({
 
 export default function SignupPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const callbackUrl = params.get('callbackUrl') || '/';
+  // const params = useSearchParams();
+  // const callbackUrl = params.get('callbackUrl') || '/';
+  const callbackUrl = '/';
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
