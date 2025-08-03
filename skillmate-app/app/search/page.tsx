@@ -13,10 +13,16 @@ import {
 } from "@/components/ui/sidebar";
 import { findFirstSection, allSections } from "@/lib/skills";
 
+interface Location {
+  latitude: number;
+  longitude: number;
+}
+
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeSection, setActiveSection] = useState(findFirstSection());
+  const [location, setLocation] = useState<Location | null>(null);
 
   // URL parameter parsing
   useEffect(() => {
@@ -30,6 +36,31 @@ export default function Page() {
       }
     }
   }, [searchParams]);
+
+  /*used to find location to match users*/
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position: GeolocationPosition) => {
+          const coords: Location = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+
+          setLocation(coords);
+
+          fetch("/api/update-location", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(coords),
+          });
+        },
+        (error: GeolocationPositionError) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    }
+  }, []);
 
   const handleSectionChange = (section) => {
     setActiveSection(section);
