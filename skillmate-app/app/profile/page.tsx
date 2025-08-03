@@ -25,13 +25,12 @@ export default function ProfilePage() {
     fetch('/api/profile')
       .then(res => res.json())
       .then(data => setProfile({
-        name: data?.name || '',
-        bio: data?.bio || '',
-        email: data?.email || '',
-        selectedSkills:data?.skill_id
+        name: data?.row.name || '',
+        bio: data?.row.bio || '',
+        email: data?.row.email || '',
+        selectedSkills: (data?.skills || []).map(s => s.skill_id)
       }))
       .catch(err => console.error('Failed to load profile:', err));
-
     //fetch('/api/skills')
      // .then(res = res.json())
       //.then(data => skillIDs)
@@ -69,13 +68,11 @@ export default function ProfilePage() {
     await fetch('/api/profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: profile.name, bio: profile.bio, skills: profile.selectedSkills}), // Need to add skills to user profiles on database
+      body: JSON.stringify({ name: profile.name, bio: profile.bio, skills: selectedSkills}),
     }
   );
-
     setEditing(false);
     toast.success('Profile updated');
-    console.log(selectedSkills);
   };
 
   // Send a friend request
@@ -141,6 +138,7 @@ export default function ProfilePage() {
           />
         </div>
 
+        {/* Skills I'm interested in */}
         <div>
           <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I'm interested in</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -154,10 +152,8 @@ export default function ProfilePage() {
                       prev.includes(skill.id)
                         ? prev.filter(s => s !== skill.id)
                         : [...prev, skill.id]
-
                     );
                   }}
-                  
                   disabled={!editing}
                 />
                 {skill.name}

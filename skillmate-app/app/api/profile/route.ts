@@ -21,9 +21,15 @@ export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { name, bio, selectedSkills } = await req.json();
+  const { name, bio, skills } = await req.json();
   await pool.execute('UPDATE Users SET name = ?, bio = ? WHERE id = ?', [name, bio, session.id]);
 
+  // Update skills
+  await pool.execute('DELETE FROM user_wants_skill WHERE user_id = ?', [session.id]);
+  for (const skill of skills) {
+    console.log(skill);
+    await pool.execute('INSERT user_wants_skill SET user_id = ?, skill_id = ?', [session.id, skill]);
+  }
 
   return NextResponse.json({ success: true });
 }
