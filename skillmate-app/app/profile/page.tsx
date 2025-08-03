@@ -25,10 +25,10 @@ export default function ProfilePage() {
     fetch('/api/profile')
       .then(res => res.json())
       .then(data => setProfile({
-        name: data?.name || '',
-        bio: data?.bio || '',
-        email: data?.email || '',
-        selectedSkills:data?.skill_id
+        name: data?.row.name || '',
+        bio: data?.row.bio || '',
+        email: data?.row.email || '',
+        selectedSkills:data?.skills.skill_id || '',
       }))
       .catch(err => console.error('Failed to load profile:', err));
 
