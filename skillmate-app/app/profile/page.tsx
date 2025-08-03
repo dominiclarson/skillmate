@@ -12,26 +12,32 @@ import { skills, Skill } from '@/lib/skills';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState({ name: '', bio: '', email: '' ,selectedSkills:''});
-  const [skillIDs] = useState([]);
   const [editing, setEditing] = useState(false);
   const [otherUsers, setOtherUsers] = useState([]);
   const [pendingRequests, setPendingRequests] = useState<number[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<any[]>([]);
   const [confirmedFriends, setConfirmedFriends] = useState<any[]>([]);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState<number[]>([]);/*this NEEDS to be casted as number*/
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetch logged-in user profile
     fetch('/api/profile')
       .then(res => res.json())
-      .then(data => setProfile({
+      .then(data =>{
+        const selectedSkills = (data?.skills || []).map(s => Number(s.skill_id))
+        setProfile({
         name: data?.row.name || '',
         bio: data?.row.bio || '',
         email: data?.row.email || '',
-        selectedSkills:data?.skills.skill_id || '',
-      }))
-      .catch(err => console.error('Failed to load profile:', err));
+        selectedSkills: selectedSkills[24]
+      });
+      console.log(selectedSkills)
+      setSelectedSkills(selectedSkills);/*to preload choices of skills*/
+      setLoading(false); /*to make the page load the data before it trys to render*/
+    })
 
+      .catch(err => console.error('Failed to load profile:', err));
     //fetch('/api/skills')
      // .then(res = res.json())
       //.then(data => skillIDs)
@@ -62,20 +68,18 @@ export default function ProfilePage() {
       .then(res => res.json())
       .then(data => setConfirmedFriends(data))
       .catch(err => console.error('Failed to fetch friends:', err));
-  }, []);
-
+    },[]);
+  
   // Save updated profile
   const handleSave = async () => {
     await fetch('/api/profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: profile.name, bio: profile.bio, skills: profile.selectedSkills}), // Need to add skills to user profiles on database
+      body: JSON.stringify({ name: profile.name, bio: profile.bio, skills: selectedSkills}),
     }
   );
-
     setEditing(false);
     toast.success('Profile updated');
-    console.log(selectedSkills);
   };
 
   // Send a friend request
@@ -141,6 +145,7 @@ export default function ProfilePage() {
           />
         </div>
 
+        {!loading && (/* Skills I'm interested in */
         <div>
           <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I'm interested in</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -148,16 +153,15 @@ export default function ProfilePage() {
               <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
                 <input
                   type="checkbox"
-                  checked={selectedSkills.includes(skill.id)}
+                  checked={selectedSkills.includes(Number(skill.id))}
                   onChange={() => {
-                    setSelectedSkills(prev =>
-                      prev.includes(skill.id)
-                        ? prev.filter(s => s !== skill.id)
-                        : [...prev, skill.id]
-
-                    );
+                    const id = Number(skill.id)
+                    setSelectedSkills(prev => 
+                      prev.includes(id)
+                        ? prev.filter(s => s !== id)
+                        : [...prev, id]
+                  );
                   }}
-                  
                   disabled={!editing}
                 />
                 {skill.name}
@@ -165,6 +169,7 @@ export default function ProfilePage() {
             ))}
           </div>
         </div>
+        )}
 
         <div className="flex justify-end gap-4">
           {!editing ? (
