@@ -36,6 +36,7 @@ export default function ProfilePage() {
       setSelectedSkills(selectedSkills);/*to preload choices of skills*/
       setLoading(false); /*to make the page load the data before it trys to render*/
     })
+
       .catch(err => console.error('Failed to load profile:', err));
     //fetch('/api/skills')
      // .then(res = res.json())
