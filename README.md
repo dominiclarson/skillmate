@@ -58,7 +58,7 @@ A platform for exchanging skills between learners and instructors.   Users can s
 
 The following features are currently implemented and working:
 
-- **Authentication**: Sign up, log in, logout, and session persistence.
+- **Authentication**: Sign up, log in, logout, and session persistence, including profile data and interested skills.
 - **Skill CRUD**: Listing all skills, searching by name, and displaying details.
 - **Featured Skills Page**: Dynamic filtering and selection of skills with sidebar navigation.
 - **SkillOverview Component**: Displays selected skill’s description and details.
