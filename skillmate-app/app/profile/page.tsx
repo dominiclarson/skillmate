@@ -11,13 +11,14 @@ import { toast } from 'react-toastify';
 import { skills, Skill } from '@/lib/skills';
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState({ name: '', bio: '', email: '' ,selectedSkills:''});
+  const [profile, setProfile] = useState({ name: '', bio: '', email: '' ,selectedSkillsW:'' ,selectedSkillsH:''});
   const [editing, setEditing] = useState(false);
   const [otherUsers, setOtherUsers] = useState([]);
   const [pendingRequests, setPendingRequests] = useState<number[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<any[]>([]);
   const [confirmedFriends, setConfirmedFriends] = useState<any[]>([]);
-  const [selectedSkills, setSelectedSkills] = useState<number[]>([]);/*this NEEDS to be casted as number*/
+  const [selectedSkillsW, setselectedSkillsW] = useState<number[]>([]);/*this NEEDS to be casted as number*/
+  const [selectedSkillsH, setselectedSkillsH] = useState<number[]>([]);/*this NEEDS to be casted as number*/
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,15 +26,19 @@ export default function ProfilePage() {
     fetch('/api/profile')
       .then(res => res.json())
       .then(data =>{
-        const selectedSkills = (data?.skills || []).map(s => Number(s.skill_id))
+        const selectedSkillsW = (data?.skillsW || []).map(s => Number(s.skill_id))
+        const selectedSkillsH = (data?.skillsH || []).map(s => Number(s.skill_id))
         setProfile({
         name: data?.row.name || '',
         bio: data?.row.bio || '',
         email: data?.row.email || '',
-        selectedSkills: selectedSkills[24]
+        selectedSkillsW: selectedSkillsW[24],
+        selectedSkillsH: selectedSkillsH[24]
       });
-      console.log(selectedSkills)
-      setSelectedSkills(selectedSkills);/*to preload choices of skills*/
+      
+      /*to preload choices of skills*/
+      setselectedSkillsW(selectedSkillsW);
+      setselectedSkillsH(selectedSkillsH);
       setLoading(false); /*to make the page load the data before it trys to render*/
     })
 
@@ -75,7 +80,7 @@ export default function ProfilePage() {
     await fetch('/api/profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: profile.name, bio: profile.bio, skills: selectedSkills}),
+      body: JSON.stringify({ name: profile.name, bio: profile.bio, skillsW: selectedSkillsW, skillsH: selectedSkillsH}),
     }
   );
     setEditing(false);
@@ -145,6 +150,33 @@ export default function ProfilePage() {
           />
         </div>
 
+        {!loading && (/* Skills I have */
+        <div>
+          <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I have</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {skills.map(skill => (
+              <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
+                <input
+                  type="checkbox"
+                  checked={selectedSkillsH.includes(Number(skill.id))}
+                  onChange={() => {
+                    const id = Number(skill.id)
+                    setselectedSkillsH(prev => 
+                      prev.includes(id)
+                        ? prev.filter(s => s !== id)
+                        : [...prev, id]
+                  );
+                  }}
+                  disabled={!editing}
+                />
+                {skill.name}
+              </label>
+            ))}
+          </div>
+        </div>
+        )}
+
+        <hr className="my-8 border-t" />
         {!loading && (/* Skills I'm interested in */
         <div>
           <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I'm interested in</label>
@@ -153,10 +185,10 @@ export default function ProfilePage() {
               <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
                 <input
                   type="checkbox"
-                  checked={selectedSkills.includes(Number(skill.id))}
+                  checked={selectedSkillsW.includes(Number(skill.id))}
                   onChange={() => {
                     const id = Number(skill.id)
-                    setSelectedSkills(prev => 
+                    setselectedSkillsW(prev => 
                       prev.includes(id)
                         ? prev.filter(s => s !== id)
                         : [...prev, id]
