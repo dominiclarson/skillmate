@@ -256,36 +256,60 @@ export default function ProfilePage() {
         </div>
 
         {/* Other Users */}
-        <hr className="my-8 border-t" />
-        <div>
-          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Connect With Other Users</h2>
-          {otherUsers.length === 0 ? (
-            <p className="text-gray-600 dark:text-gray-400">No other users available.</p>
-          ) : (
-            <ul className="space-y-4">
-              {otherUsers.map((user: any) => (
-                <li key={user.id} className="flex items-center justify-between border rounded px-4 py-2 dark:bg-gray-700">
-                  <div>
-                    <div className="font-semibold text-gray-800 dark:text-white">{user.name}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-300">{user.email}</div>
-                  </div>
-                  {pendingRequests.includes(user.id) ? (
-                    <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
-                      <CheckCircle size={16} /> Requested
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => handleConnect(user.id)}
-                      className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
-                    >
-                      <UserPlus size={16} /> Connect
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+<hr className="my-8 border-t" />
+<div>
+  <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
+    Connect With Other Users
+  </h2>
+
+  {otherUsers
+    .filter((user: any) => {
+      // hide people you’re connected to 
+      const isFriend   = confirmedFriends.some((f: any) => f.id === user.id);
+      const isPending  = pendingRequests.includes(user.id);            // you sent
+      const isIncoming = incomingRequests.some((r: any) => r.sender_id === user.id); // they sent
+      return !isFriend && !isPending && !isIncoming;
+    })
+    .length === 0 ? (
+      <p className="text-gray-600 dark:text-gray-400">
+        No other users available.
+      </p>
+    ) : (
+      <ul className="space-y-4">
+        {otherUsers
+          .filter((user: any) => {
+            const isFriend   = confirmedFriends.some((f: any) => f.id === user.id);
+            const isPending  = pendingRequests.includes(user.id);
+            const isIncoming = incomingRequests.some(
+              (r: any) => r.sender_id === user.id
+            );
+            return !isFriend && !isPending && !isIncoming;
+          })
+          .map((user: any) => (
+            <li
+              key={user.id}
+              className="flex items-center justify-between border rounded px-4 py-2 dark:bg-gray-700"
+            >
+              <div>
+                <div className="font-semibold text-gray-800 dark:text-white">
+                  {user.name}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-300">
+                  {user.email}
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleConnect(user.id)}
+                className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
+              >
+                <UserPlus size={16} /> Connect
+              </button>
+            </li>
+          ))}
+      </ul>
+    )}
+</div>
 
         {/* Confirmed Friends */}
         <hr className="my-8 border-t" />

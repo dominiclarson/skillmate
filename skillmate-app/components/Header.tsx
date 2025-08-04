@@ -36,6 +36,8 @@ export default function Header({ authenticated, onLogout }: HeaderProps) {
   const navItems = [
     { href: '/', label: 'Home' },
     { href: '/featured', label: 'Featured' },
+    { href: '/sessions', label: 'Scheduling' },    
+    { href: '/notifications', label: 'Notifications' }, 
     { href: '/profile', label: 'Profile' },
     { href: '/chat', label: 'Chat' },
   ];

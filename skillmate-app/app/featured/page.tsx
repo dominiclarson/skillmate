@@ -77,23 +77,21 @@ export default function FeaturedPage() {
         ) : (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredSkills.map(skill => (
-              <button
-                key={skill.id}
-                type="button"
-                onClick={() => selectSkill(skill)}
-                className={`group focus:outline-none transform transition duration-200
-                  hover:scale-105 hover:shadow-lg rounded-lg border p-6 flex flex-col items-center
-                  ${
-                    activeSection.id === skill.id
+              <Link key={skill.id} href={`/skills/${skill.id}`}>
+                <div
+                  className={`group cursor-pointer transform transition duration-200
+                    hover:scale-105 hover:shadow-lg rounded-lg border p-6 flex flex-col items-center
+                    ${activeSection.id === skill.id
                       ? 'bg-accent border-primary text-accent-foreground'
                       : 'bg-card border-border text-card-foreground hover:bg-accent/50'
-                  }`}
-              >
-                <span className="text-5xl mb-4">{skill.emoji}</span>
-                <span className="text-lg font-semibold group-hover:text-primary transition-colors">
-                  {skill.name}
-                </span>
-              </button>
+                    }`}
+                >
+                  <span className="text-5xl mb-4">{skill.emoji}</span>
+                  <span className="text-lg font-semibold group-hover:text-primary transition-colors">
+                    {skill.name}
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
         )}

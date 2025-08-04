@@ -7,8 +7,8 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Frame, User, MessageCircle, Home } from 'lucide-react';
-import type { Skill } from '@/lib/skills';  // for the prop type
+import { Frame, User, MessageCircle, Home, Calendar, Bell } from 'lucide-react';
+import type { Skill } from '@/lib/skills';  
 
 export function AppSidebar(props: {
   activeSection?: Skill;
@@ -18,6 +18,8 @@ export function AppSidebar(props: {
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/featured', label: 'Featured', icon: Frame },
+    { href: '/sessions', label: 'Scheduling', icon: Calendar },     
+    { href: '/notifications', label: 'Notifications', icon: Bell },  
     { href: '/profile', label: 'Profile', icon: User },
     { href: '/chat', label: 'Chat', icon: MessageCircle },
   ];
