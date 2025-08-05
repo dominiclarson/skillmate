@@ -7,12 +7,13 @@ import {
   act,
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SignupPage from "@/app/signup/page";
 import { toast } from "react-toastify";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
 }));
 
 jest.mock("react-toastify", () => ({
@@ -26,11 +27,16 @@ global.fetch = jest.fn();
 
 describe("SignInPage", () => {
   const mockPush = jest.fn();
+  const mockGet = jest.fn();
 
   beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue({
+    useRouter.mockReturnValue({
       push: mockPush,
     });
+    useSearchParams.mockReturnValue({
+      get: mockGet,
+    });
+    mockGet.mockReturnValue('/');
     jest.clearAllMocks();
   });
 
@@ -57,7 +63,7 @@ describe("SignInPage", () => {
   });
 
   it("handle successful sign up", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ success: true }),
     });
@@ -87,7 +93,7 @@ describe("SignInPage", () => {
   });
 
   it("handle sign up failure (duplicate email)", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    fetch.mockResolvedValueOnce({
       ok: false, // ← 失敗レスポンス
       json: async () => ({ error: "Email already in use" }),
     });

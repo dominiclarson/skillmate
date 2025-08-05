@@ -26,8 +26,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Framework**: Next.js 15 with App Router and TypeScript
 - **Database**: MySQL with mysql2 connection pooling
 - **Authentication**: JWT tokens with httpOnly cookies
-- **UI**: React 19, Tailwind CSS, Radix UI components
-- **Testing**: Jest for unit tests, Cypress for e2e tests
+- **UI**: React 19, Tailwind CSS, Radix UI components, shadcn/ui
+- **Forms**: React Hook Form with Zod validation
+- **Notifications**: React Toastify for user feedback
+- **Icons**: Lucide React icon library
+- **Testing**: Jest for unit tests (jsdom environment), Cypress for e2e tests
 
 ### Database Connection
 The app uses MySQL connection pooling via `lib/db.ts`. Database credentials are managed through environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME).
@@ -47,10 +50,13 @@ API routes follow Next.js App Router conventions in `app/api/`:
 - **Profile & Users**: `/api/[profile|users]`
 
 ### Core Features
-1. **Skill Trading Platform**: Users have skills defined in `lib/skills.ts` with predefined skill categories
+1. **Skill Trading Platform**: Users have skills defined in `lib/skills.ts` with 24 predefined skill categories
 2. **Friend System**: Friend requests with pending/accepted/rejected states
 3. **Real-time Chat**: Message system between connected users
 4. **User Profiles**: Profile management with skill associations
+5. **Session Scheduling**: Skill session booking with availability management
+6. **Notification System**: Real-time notifications for platform events
+7. **Location Services**: Geographic features for local skill matching
 
 ### Key Components
 - **NavBar**: Main navigation with theme toggle
@@ -68,3 +74,15 @@ API routes follow Next.js App Router conventions in `app/api/`:
 - Chat messages are stored in MySQL Messages table
 - Friend relationships managed through database with status tracking
 - Skills are statically defined but associated with users dynamically
+
+### Testing Configuration
+- **Unit Tests**: Jest with ts-jest preset in jsdom environment, tests located in `/tests/` directory
+- **Setup**: Jest DOM matchers configured via `jest.setup.ts`
+- **E2E Tests**: Cypress for integration testing authentication flows
+- **Test Environment**: Tests run against development server on localhost:3000
+
+### Development Environment
+- **Module System**: Full ESM with TypeScript strict null checks enabled
+- **Path Aliases**: Comprehensive alias system (@/, @/lib/*, @/components/*)
+- **Build Tool**: Turbopack for development server acceleration
+- **Component Library**: shadcn/ui configured in `components.json`

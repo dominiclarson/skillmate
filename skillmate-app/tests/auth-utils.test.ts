@@ -1,42 +1,56 @@
 
-
+import '@testing-library/jest-dom';
 import { createUser, findUserByEmail, verifyPassword } from '@/lib/auth-utils';
-import { readUsers, writeUsers } from '@/lib/file-store';
+import pool from '@/lib/db';
+import bcrypt from 'bcryptjs';
 
-jest.mock('@/lib/file-store');
+jest.mock('@/lib/db');
+jest.mock('bcryptjs');
+
+const mockPool = pool as jest.Mocked<typeof pool>;
+const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
 
 describe('auth-utils', () => {
   beforeEach(() => {
-   
-    (readUsers as jest.Mock).mockResolvedValue([]);
-    (writeUsers as jest.Mock).mockResolvedValue(undefined);
+    jest.clearAllMocks();
+    mockBcrypt.hash.mockResolvedValue('hashedpassword');
+    mockBcrypt.compare.mockResolvedValue(true);
   });
 
   it('can create and find a user', async () => {
+    mockPool.execute
+      .mockResolvedValueOnce([{ insertId: 1 }] as any)
+      .mockResolvedValueOnce([[{ id: 1, email: 'brian@goat.com', password: 'hashedpassword' }]] as any);
     
-    (readUsers as jest.Mock).mockResolvedValue([]);
     const user = await createUser('brian@goat.com', 'secret123');
     expect(user.email).toBe('brian@goat.com');
+    expect(user.id).toBe(1);
     
-    (readUsers as jest.Mock).mockResolvedValue([user]);
     const found = await findUserByEmail('brian@goat.com');
     expect(found).toBeDefined();
     expect(found!.email).toBe('brian@goat.com');
+    expect(found!.id).toBe(1);
   });
 
   it('hashes passwords', async () => {
     const plain = 'mypw';
-    const user = await createUser('x@y.com', plain);
-    expect(user.hash).not.toBe(plain);
-    const match = await verifyPassword(plain, user.hash);
+    mockBcrypt.hash.mockResolvedValue('hashedmypw');
+    mockPool.execute.mockResolvedValue([{ insertId: 1 }] as any);
+    
+    await createUser('x@y.com', plain);
+    expect(mockBcrypt.hash).toHaveBeenCalledWith(plain, 10);
+    
+    const match = await verifyPassword(plain, 'hashedmypw');
     expect(match).toBe(true);
-    const mismatch = await verifyPassword('wrong', user.hash);
+    
+    mockBcrypt.compare.mockResolvedValue(false);
+    const mismatch = await verifyPassword('wrong', 'hashedmypw');
     expect(mismatch).toBe(false);
   });
 
-  it('throws if email exists', async () => {
-    const existing = { id: 1, email: 'dup@dup.com', hash: 'h' };
-    (readUsers as jest.Mock).mockResolvedValue([existing]);
-    await expect(createUser('dup@dup.com', 'pw')).rejects.toThrow('exists');
+  it('handles user creation when email already exists', async () => {
+    mockPool.execute.mockRejectedValue(new Error('Duplicate entry'));
+    
+    await expect(createUser('dup@dup.com', 'pw')).rejects.toThrow('Duplicate entry');
   });
 });
