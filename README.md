@@ -18,7 +18,7 @@ A platform for exchanging skills between learners and instructors.   Users can s
 - **Socket.io** for real-time chat
 - **Lucide Icons** for UI icons
 - **Tailwind CSS** for styling
-
+- **Shadcn.ui** also used for Styling
 
 ## Installation
 
@@ -58,11 +58,13 @@ A platform for exchanging skills between learners and instructors.   Users can s
 
 The following features are currently implemented and working:
 
-- **Authentication**: Sign up, log in, logout, and session persistence, including profile data and interested skills.
+- **Authentication**: Sign up, log in, logout, and session persistence 
 - **Skill CRUD**: Listing all skills, searching by name, and displaying details.
 - **Featured Skills Page**: Dynamic filtering and selection of skills with sidebar navigation.
 - **SkillOverview Component**: Displays selected skill’s description and details.
 - **AppSidebar**: Collapsible sidebar showing filtered skills and active selection.
 - **Database Integration**: MySQL connection pooling and migrations.
 - **Responsive Design**: Grid layouts adjust from mobile to desktop, light/dark mode support.
-
+- **Lesson Scheduling**: Users can schedule sessions with other users that have skills marked to teach.
+- **Profile data**: This includes Name, Email, skills I have, interested skills I want to learn.
+- **Notifications**: This includes session scheduling, and friend requests.
