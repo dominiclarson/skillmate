@@ -17,6 +17,11 @@ export default function FeaturedPage() {
   const [activeSection, setActiveSection] = useState<Skill>(skills[0]);
   const [location, setLocation] = useState<Location | null>(null);
   
+  const options = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 0,
+  }
   interface Location {
   latitude: number;
   longitude: number;
@@ -47,7 +52,8 @@ export default function FeaturedPage() {
         },
         (error: GeolocationPositionError) => {
           console.error("Error getting location:", error);
-        }
+        },
+        options
       );
     }
   }, []);

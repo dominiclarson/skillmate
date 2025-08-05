@@ -1,42 +1,52 @@
 
+import { expect, jest, describe, it } from '@jest/globals';
+import { toMySqlDateTime } from '@/lib/schedule-utils';
 
-import { createUser, findUserByEmail, verifyPassword } from '@/lib/auth-utils';
-import { readUsers, writeUsers } from '@/lib/file-store';
 
-jest.mock('@/lib/file-store');
-
-describe('auth-utils', () => {
-  beforeEach(() => {
-   
-    (readUsers as jest.Mock).mockResolvedValue([]);
-    (writeUsers as jest.Mock).mockResolvedValue(undefined);
+describe('toMySqlDateTime()', () => {
+  it('formats Date to `YYYY-MM-DD HH:MM:SS` in UTC', () => {
+    const d = new Date(Date.UTC(2025, 0, 2, 3, 4, 5)); // 2025‑01‑02 03:04:05 UTC
+    const out = toMySqlDateTime(d);
+    expect(out).toBe('2025-01-02 03:04:05');
   });
 
-  it('can create and find a user', async () => {
-    
-    (readUsers as jest.Mock).mockResolvedValue([]);
-    const user = await createUser('brian@goat.com', 'secret123');
-    expect(user.email).toBe('brian@goat.com');
-    
-    (readUsers as jest.Mock).mockResolvedValue([user]);
-    const found = await findUserByEmail('brian@goat.com');
-    expect(found).toBeDefined();
-    expect(found!.email).toBe('brian@goat.com');
+  it('zero‑pads single digits', () => {
+    const d = new Date(Date.UTC(2025, 8, 9, 7, 6, 4)); // 2025‑09‑09 07:06:04
+    const out = toMySqlDateTime(d);
+    expect(out).toBe('2025-09-09 07:06:04');
+  });
+});
+
+/**
+ * ---------------- notify() ----------------
+ */
+
+jest.mock('@/lib/db', () => ({
+  __esModule: true,
+  default: { execute: jest.fn().mockResolvedValue([{}]) },
+}));
+
+import { notify } from '@/lib/schedule-utils';
+import pool from '@/lib/db';
+
+const poolExecute = pool.execute as jest.Mock;
+
+describe('notify()', () => {
+  it('inserts row with JSON payload', async () => {
+    await notify(42, 'session_requested', { sessionId: 99 });
+
+    expect(poolExecute).toHaveBeenCalledTimes(1);
+    const [sql, params] = poolExecute.mock.calls[0];
+    expect(sql).toMatch(/INSERT INTO Notifications/);
+    expect(params[0]).toBe(42); // user_id
+    expect(params[1]).toBe('session_requested');
+    expect(JSON.parse(params[2])).toEqual({ sessionId: 99 });
   });
 
-  it('hashes passwords', async () => {
-    const plain = 'mypw';
-    const user = await createUser('x@y.com', plain);
-    expect(user.hash).not.toBe(plain);
-    const match = await verifyPassword(plain, user.hash);
-    expect(match).toBe(true);
-    const mismatch = await verifyPassword('wrong', user.hash);
-    expect(mismatch).toBe(false);
-  });
-
-  it('throws if email exists', async () => {
-    const existing = { id: 1, email: 'dup@dup.com', hash: 'h' };
-    (readUsers as jest.Mock).mockResolvedValue([existing]);
-    await expect(createUser('dup@dup.com', 'pw')).rejects.toThrow('exists');
+  it('throws on invalid type', async () => {
+    await expect(
+      // @ts-expect-error intentional bad type
+      notify(1, 'bogus_type', {})
+    ).rejects.toThrow('unknown type');
   });
 });

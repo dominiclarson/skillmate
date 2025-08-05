@@ -19,6 +19,18 @@ const safeParse = async (res: Response) => {
   return ct.includes('application/json') ? res.json() : res.text();
 };
 
+const fmt = (ts: string) => {
+  const d = ts.includes('T')
+    ? new Date(ts)
+    : new Date(ts.replace(' ', 'T') + 'Z');
+
+  return isNaN(d.valueOf())
+    ? ts
+    : d.toLocaleString(undefined, {
+        dateStyle: 'short',   
+        timeStyle: 'short',   
+      });
+};
 export default function NotificationsPage() {
   const [items, setItems] = useState<Notif[]>([]);
   const [loading, setLoading] = useState(false);
