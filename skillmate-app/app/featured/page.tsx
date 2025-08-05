@@ -15,14 +15,42 @@ export default function FeaturedPage() {
   const [isAuth, setIsAuth] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSection, setActiveSection] = useState<Skill>(skills[0]);
-
+  const [location, setLocation] = useState<Location | null>(null);
+  
+  interface Location {
+  latitude: number;
+  longitude: number;
+}
 
   useEffect(() => {
     fetch('/api/auth/session')
       .then(r => setIsAuth(r.ok))
       .catch(() => setIsAuth(false));
   }, []);
+  /*used to find location to match users*/
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position: GeolocationPosition) => {
+          const coords: Location = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
 
+          setLocation(coords);
+
+          fetch("/api/update-location", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(coords),
+          });
+        },
+        (error: GeolocationPositionError) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    }
+  }, []);
   
   const filteredSkills = useMemo(() => {
     if (!searchTerm) return skills;
