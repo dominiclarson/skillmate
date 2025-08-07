@@ -70,8 +70,7 @@ export default function FeaturedPage() {
   const clearSearch = () => setSearchTerm('');
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="max-w-7xl mx-auto p-6 space-y-8">
+    <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Header & Search */}
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -145,6 +144,5 @@ export default function FeaturedPage() {
           </div>
         )}
       </main>
-    </div>
   );
 }
