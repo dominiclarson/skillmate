@@ -26,12 +26,18 @@ type Session = {
   status: Status;
 };
 
-const fmt = (iso: string) =>
-  new Date(iso + 'Z').toLocaleString(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
+const fmt = (ts: string) => {
+  const d = ts.includes('T')
+    ? new Date(ts)
+    : new Date(ts.replace(' ', 'T') + 'Z');
 
+  return isNaN(d.valueOf())
+    ? ts
+    : d.toLocaleString(undefined, {
+        dateStyle: 'short',   
+        timeStyle: 'short',   
+      });
+};
 const badgeColor: Record<Status, 'secondary' | 'destructive' | 'success'> = {
   requested: 'secondary',
   accepted: 'success',
