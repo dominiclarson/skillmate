@@ -103,112 +103,159 @@ export default function SessionsPage() {
   );
 
   return (
-    <main className="container mx-auto px-4 space-y-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <CalendarCheck className="w-7 h-7" />
-          Lessons
-        </h1>
-        <Button asChild variant="secondary" className={undefined} size={undefined}>
-          <a href="/featured" className="flex items-center gap-2">
-            <GraduationCap size={16} />
-            Book a lesson
-          </a>
-        </Button>
-      </header>
-
-      {}
-      <div className="flex gap-2">
-        {(['all', 'student', 'teacher'] as const).map((r) => (
-          <Button
-            key={r}
-            variant={role === r ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setRole(r)} className={undefined}          >
-            {r === 'all' ? 'All' : r === 'student' ? 'As Student' : 'As Teacher'}
+    <main className="container mx-auto px-4 py-8">
+      <div className="space-y-6 sm:space-y-8">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:justify-between">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
+              <CalendarCheck className="w-6 h-6 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                Lessons
+              </h1>
+              <p className="text-muted-foreground text-sm sm:text-base">Manage your skill sessions</p>
+            </div>
+          </div>
+          <Button asChild className="w-full sm:w-auto" variant="default" size="default">
+            <a href="/featured" className="flex items-center justify-center gap-2">
+              <GraduationCap size={16} />
+              <span className="sm:inline">Book a lesson</span>
+            </a>
           </Button>
-        ))}
+        </header>
+
+        <div className="flex flex-wrap gap-2">
+          {(['all', 'student', 'teacher'] as const).map((r) => (
+            <Button
+              key={r}
+              variant={role === r ? 'default' : 'secondary'}
+              size="sm"
+              className=""
+              onClick={() => setRole(r)}
+            >
+              {r === 'all' ? 'All Sessions' : r === 'student' ? 'As Student' : 'As Teacher'}
+            </Button>
+          ))}
+        </div>
+
+        <Tabs defaultValue="pending" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="pending" className="flex items-center gap-1 px-2 sm:px-4">
+              <span className="truncate">Pending</span> 
+              <Badge variant="secondary" className="text-xs">{pending.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="upcoming" className="flex items-center gap-1 px-2 sm:px-4">
+              <span className="truncate">Upcoming</span> 
+              <Badge variant="secondary" className="text-xs">{upcoming.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-1 px-2 sm:px-4">
+              <span className="truncate">History</span> 
+              <Badge variant="secondary" className="text-xs">{history.length}</Badge>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="pending" className="space-y-4">
+            {pending.length === 0 ? (
+              <div className="text-center py-12">
+                <CalendarCheck className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No pending requests</p>
+                <p className="text-sm text-muted-foreground mt-1">New session requests will appear here</p>
+              </div>
+            ) : (
+              pending.map((s) => (
+                <Card key={s.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between pb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-semibold text-base sm:text-lg truncate">Session #{s.id}</span>
+                    </div>
+                    <Badge variant={badgeColor[s.status]} className="capitalize self-start">{s.status}</Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-start gap-2 text-muted-foreground">
+                      <CalendarCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span className="font-medium text-sm break-all">{fmt(s.start_utc)} → {fmt(s.end_utc)}</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button size="sm" variant="default" onClick={() => patch(s.id, 'accept')} className="flex-1">Accept</Button>
+                      <Button size="sm" variant="destructive" onClick={() => patch(s.id, 'decline')} className="flex-1">Decline</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="upcoming" className="space-y-4">
+            {upcoming.length === 0 ? (
+              <div className="text-center py-12">
+                <GraduationCap className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No upcoming lessons</p>
+                <p className="text-sm text-muted-foreground mt-1">Accepted sessions will appear here</p>
+              </div>
+            ) : (
+              upcoming.map((s) => (
+                <Card key={s.id} className="hover:shadow-md transition-shadow border-l-4 border-l-green-500">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between pb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-semibold text-base sm:text-lg truncate">Session #{s.id}</span>
+                    </div>
+                    <Badge variant={badgeColor[s.status]} className="capitalize self-start">{s.status}</Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-start gap-2 text-muted-foreground">
+                      <CalendarCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span className="font-medium text-sm break-all">{fmt(s.start_utc)} → {fmt(s.end_utc)}</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={() => patch(s.id, 'cancel')}
+                    >
+                      Cancel Session
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-4">
+            {history.length === 0 ? (
+              <div className="text-center py-12">
+                <CalendarCheck className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No session history</p>
+                <p className="text-sm text-muted-foreground mt-1">Completed and cancelled sessions will appear here</p>
+              </div>
+            ) : (
+              history.map((s) => (
+                <Card key={s.id} className="opacity-80 hover:opacity-100 transition-opacity">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between pb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-semibold text-base sm:text-lg truncate">Session #{s.id}</span>
+                    </div>
+                    <Badge variant={badgeColor[s.status]} className="capitalize self-start">{s.status}</Badge>
+                  </CardHeader>
+                  <CardContent className="">
+                    <div className="flex items-start gap-2 text-muted-foreground">
+                      <CalendarCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm break-all">{fmt(s.start_utc)} → {fmt(s.end_utc)}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {loading && (
+          <div className="flex items-center justify-center py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            <span className="ml-2 text-sm text-muted-foreground">Refreshing...</span>
+          </div>
+        )}
       </div>
-
-      {/* tabs */}
-      <Tabs defaultValue="pending">
-        <TabsList className="mb-4">
-          <TabsTrigger value="pending">Pending ({pending.length})</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming ({upcoming.length})</TabsTrigger>
-          <TabsTrigger value="history">History ({history.length})</TabsTrigger>
-        </TabsList>
-
-        {/* PENDING */}
-        <TabsContent value="pending">
-          {pending.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No pending requests.</p>
-          ) : (
-            pending.map((s) => (
-              <Card key={s.id} className={undefined}>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <span className="font-medium">#{s.id}</span>
-                  <Badge variant={badgeColor[s.status]} className={undefined}>{s.status}</Badge>
-                </CardHeader>
-                <CardContent className="space-y-1">
-                  <p>{fmt(s.start_utc)} → {fmt(s.end_utc)}</p>
-                  <div className="flex gap-2 mt-3">
-                    <Button size="sm" onClick={() => patch(s.id, 'accept')} className={undefined} variant={undefined}>Accept</Button>
-                    <Button size="sm" variant="destructive" onClick={() => patch(s.id, 'decline')} className={undefined}>Decline</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </TabsContent>
-
-        {/*UPCOMING */}
-        <TabsContent value="upcoming">
-          {upcoming.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No upcoming lessons.</p>
-          ) : (
-            upcoming.map((s) => (
-              <Card key={s.id} className={undefined}>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <span className="font-medium">#{s.id}</span>
-                  <Badge variant={badgeColor[s.status]} className={undefined}>{s.status}</Badge>
-                </CardHeader>
-                <CardContent className="space-y-1">
-                  <p>{fmt(s.start_utc)} → {fmt(s.end_utc)}</p>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="mt-3"
-                    onClick={() => patch(s.id, 'cancel')}
-                  >
-                    Cancel
-                  </Button>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </TabsContent>
-
-        {/*  HISTORY */}
-        <TabsContent value="history">
-          {history.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No past lessons.</p>
-          ) : (
-            history.map((s) => (
-              <Card key={s.id} className={undefined}>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <span className="font-medium">#{s.id}</span>
-                  <Badge variant={badgeColor[s.status]} className={undefined}>{s.status}</Badge>
-                </CardHeader>
-                <CardContent className={undefined}>
-                  <p>{fmt(s.start_utc)} → {fmt(s.end_utc)}</p>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </TabsContent>
-      </Tabs>
-
-      {loading && <p className="text-sm">Refreshing…</p>}
     </main>
   );
 }
