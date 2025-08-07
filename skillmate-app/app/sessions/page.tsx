@@ -103,7 +103,7 @@ export default function SessionsPage() {
   );
 
   return (
-    <main className="w-full lg:max-w-2xl lg:mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <main className="container mx-auto px-4 space-y-6">
       <header className="flex items-center justify-between">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <CalendarCheck className="w-7 h-7" />
