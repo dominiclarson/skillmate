@@ -5,9 +5,9 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import { QuickScheduleDialog } from '@/components/QuickScheduleDialog';
+import QuickScheduleDialog from '@/components/QuickScheduleDialog';
 
-type Teacher = { id: number; name?: string | null; email: string; bio?: string | null };
+type Teacher = { id: number; name: string; email: string; bio?: string | null };
 type SkillInfo = { id: number; name: string; emoji?: string; description?: string };
 
 export default function SkillTeachersPage() {
@@ -33,7 +33,7 @@ export default function SkillTeachersPage() {
       .catch(() => setTeachers([]));
   }, [skillId]);
 
-  return (
+     return (
     <main className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-3">
         {skill?.emoji && <span className="text-3xl">{skill.emoji}</span>}
@@ -42,9 +42,9 @@ export default function SkillTeachersPage() {
       {skill?.description && <p className="text-muted-foreground">{skill.description}</p>}
 
       <h2 className="text-xl font-semibold mt-6">Teachers</h2>
-      {teachers.length === 0 ? (
+         {teachers.length === 0 ? (
         <p className="text-sm text-muted-foreground">No teachers yet for this skill.</p>
-      ) : (
+         ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
           {teachers.map(t => (
             <li key={t.id} className="border rounded-lg p-4 flex flex-col gap-2">
@@ -53,10 +53,11 @@ export default function SkillTeachersPage() {
               <div className="flex justify-end">
                 <QuickScheduleDialog teacher={t} />
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
-  );
-}
+               </li>
+             ))}
+           </ul>
+         )}
+       </main>
+     );
+   }
+   

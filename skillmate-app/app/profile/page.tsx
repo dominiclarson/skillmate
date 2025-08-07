@@ -120,7 +120,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto mt-12 p-6 rounded-xl bg-white dark:bg-gray-800 shadow">
+    <><div className="max-w-3xl mx-auto mt-12 p-6 rounded-xl bg-white dark:bg-gray-800 shadow">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">My Profile</h1>
       <div className="space-y-6">
         {/* Profile Info */}
@@ -135,8 +135,7 @@ export default function ProfilePage() {
             value={profile.name || ''}
             onChange={e => setProfile({ ...profile, name: e.target.value })}
             className="border px-3 py-2 rounded w-full dark:bg-gray-700 dark:text-white"
-            disabled={!editing}
-          />
+            disabled={!editing} />
         </div>
 
         <div>
@@ -146,61 +145,56 @@ export default function ProfilePage() {
             onChange={e => setProfile({ ...profile, bio: e.target.value })}
             className="border px-3 py-2 rounded w-full dark:bg-gray-700 dark:text-white"
             rows={4}
-            disabled={!editing}
-          />
+            disabled={!editing} />
         </div>
 
-        {!loading && (/* Skills I have */
-        <div>
-          <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I have</label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {skills.map(skill => (
-              <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
-                <input
-                  type="checkbox"
-                  checked={selectedSkillsH.includes(Number(skill.id))}
-                  onChange={() => {
-                    const id = Number(skill.id)
-                    setselectedSkillsH(prev => 
-                      prev.includes(id)
+        {!loading && ( /* Skills I have */
+          <div>
+            <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I have</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {skills.map(skill => (
+                <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
+                  <input
+                    type="checkbox"
+                    checked={selectedSkillsH.includes(Number(skill.id))}
+                    onChange={() => {
+                      const id = Number(skill.id);
+                      setselectedSkillsH(prev => prev.includes(id)
                         ? prev.filter(s => s !== id)
                         : [...prev, id]
-                  );
-                  }}
-                  disabled={!editing}
-                />
-                {skill.name}
-              </label>
-            ))}
+                      );
+                    } }
+                    disabled={!editing} />
+                  {skill.name}
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
         )}
 
         <hr className="my-8 border-t" />
-        {!loading && (/* Skills I'm interested in */
-        <div>
-          <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I'm interested in</label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {skills.map(skill => (
-              <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
-                <input
-                  type="checkbox"
-                  checked={selectedSkillsW.includes(Number(skill.id))}
-                  onChange={() => {
-                    const id = Number(skill.id)
-                    setselectedSkillsW(prev => 
-                      prev.includes(id)
+        {!loading && ( /* Skills I'm interested in */
+          <div>
+            <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I'm interested in</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {skills.map(skill => (
+                <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
+                  <input
+                    type="checkbox"
+                    checked={selectedSkillsW.includes(Number(skill.id))}
+                    onChange={() => {
+                      const id = Number(skill.id);
+                      setselectedSkillsW(prev => prev.includes(id)
                         ? prev.filter(s => s !== id)
                         : [...prev, id]
-                  );
-                  }}
-                  disabled={!editing}
-                />
-                {skill.name}
-              </label>
-            ))}
+                      );
+                    } }
+                    disabled={!editing} />
+                  {skill.name}
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
         )}
 
         <div className="flex justify-end gap-4">
@@ -256,60 +250,60 @@ export default function ProfilePage() {
         </div>
 
         {/* Other Users */}
-<hr className="my-8 border-t" />
-<div>
-  <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
-    Connect With Other Users
-  </h2>
+        <hr className="my-8 border-t" />
+        <div>
+          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
+            Connect With Other Users
+          </h2>
 
-  {otherUsers
-    .filter((user: any) => {
-      // hide people you’re connected to 
-      const isFriend   = confirmedFriends.some((f: any) => f.id === user.id);
-      const isPending  = pendingRequests.includes(user.id);            // you sent
-      const isIncoming = incomingRequests.some((r: any) => r.sender_id === user.id); // they sent
-      return !isFriend && !isPending && !isIncoming;
-    })
-    .length === 0 ? (
-      <p className="text-gray-600 dark:text-gray-400">
-        No other users available.
-      </p>
-    ) : (
-      <ul className="space-y-4">
-        {otherUsers
-          .filter((user: any) => {
-            const isFriend   = confirmedFriends.some((f: any) => f.id === user.id);
-            const isPending  = pendingRequests.includes(user.id);
-            const isIncoming = incomingRequests.some(
-              (r: any) => r.sender_id === user.id
-            );
-            return !isFriend && !isPending && !isIncoming;
-          })
-          .map((user: any) => (
-            <li
-              key={user.id}
-              className="flex items-center justify-between border rounded px-4 py-2 dark:bg-gray-700"
-            >
-              <div>
-                <div className="font-semibold text-gray-800 dark:text-white">
-                  {user.name}
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-300">
-                  {user.email}
-                </div>
-              </div>
+          {otherUsers
+            .filter((user: any) => {
+              // hide people you’re connected to 
+              const isFriend = confirmedFriends.some((f: any) => f.id === user.id);
+              const isPending = pendingRequests.includes(user.id); // you sent
+              const isIncoming = incomingRequests.some((r: any) => r.sender_id === user.id); // they sent
+              return !isFriend && !isPending && !isIncoming;
+            })
+            .length === 0 ? (
+            <p className="text-gray-600 dark:text-gray-400">
+              No other users available.
+            </p>
+          ) : (
+            <ul className="space-y-4">
+              {otherUsers
+                .filter((user: any) => {
+                  const isFriend = confirmedFriends.some((f: any) => f.id === user.id);
+                  const isPending = pendingRequests.includes(user.id);
+                  const isIncoming = incomingRequests.some(
+                    (r: any) => r.sender_id === user.id
+                  );
+                  return !isFriend && !isPending && !isIncoming;
+                })
+                .map((user: any) => (
+                  <li
+                    key={user.id}
+                    className="flex items-center justify-between border rounded px-4 py-2 dark:bg-gray-700"
+                  >
+                    <div>
+                      <div className="font-semibold text-gray-800 dark:text-white">
+                        {user.name}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-300">
+                        {user.email}
+                      </div>
+                    </div>
 
-              <button
-                onClick={() => handleConnect(user.id)}
-                className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
-              >
-                <UserPlus size={16} /> Connect
-              </button>
-            </li>
-          ))}
-      </ul>
-    )}
-</div>
+                    <button
+                      onClick={() => handleConnect(user.id)}
+                      className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                    >
+                      <UserPlus size={16} /> Connect
+                    </button>
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
 
         {/* Confirmed Friends */}
         <hr className="my-8 border-t" />
@@ -334,6 +328,32 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
-    </div>
+    </div><hr className="my-8 border-t" /><div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 p-4 rounded">
+        <h3 className="font-bold text-red-700 dark:text-red-300 mb-2">
+          Delete Account
+        </h3>
+        <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+          Deleting your account is irreversible. 
+        </p>
+        <button
+          onClick={async () => {
+            if (!confirm(
+              'This will permanently delete your account.'
+            ))
+              return;
+
+            const res = await fetch('/api/account', { method: 'DELETE' });
+            if (res.ok) {
+              alert('Account deleted. Goodbye!');
+              window.location.href = '/';
+            } else {
+              alert('Failed to delete account.');
+            }
+          } }
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+        >
+          Delete my account
+        </button>
+      </div></>
   );
 }

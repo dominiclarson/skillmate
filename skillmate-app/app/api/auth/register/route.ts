@@ -7,13 +7,13 @@ import { createUser, setAuthCookie } from '@/lib/auth-utils';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { firstName, lastName, email, password } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Missing credentials' }, { status: 400 });
     }
 
-    const user = await createUser(email, password);
+    const user = await createUser({ firstName, lastName, email, password });
     await setAuthCookie(user);
 
     return NextResponse.json({ ok: true });

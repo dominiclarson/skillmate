@@ -12,15 +12,33 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 const COOKIE_NAME = process.env.COOKIE_NAME!;
 
 // Registeruser
-export async function createUser(email: string, password: string) {
-  const hashed = await bcrypt.hash(password, 10); 
-  const [result] = await pool.execute(
-    'INSERT INTO Users (email, password) VALUES (?, ?)',
-    [email, hashed]
+export async function createUser({
+  firstName,
+  lastName,
+  email,
+  password,
+}: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}) {
+  const hashed = await bcrypt.hash(password, 10);
+
+  const [result]: any = await pool.execute(
+    `INSERT INTO Users (first_name, last_name, email, password)
+           VALUES (?, ?, ?, ?)`,
+    [firstName, lastName, email, hashed],
   );
-  const insertId = (result as any).insertId;
-  return { id: insertId, email };
+
+  return {
+    id: result.insertId,
+    firstName,
+    lastName,
+    email,
+  };
 }
+
 
 // user by email
 export async function findUserByEmail(email: string) {
