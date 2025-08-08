@@ -62,9 +62,10 @@ export async function setAuthCookie(user: { id: number; email: string }) {
     name: COOKIE_NAME,
     value: token,
     httpOnly: true,
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7, 
+    maxAge: 60 * 60 * 24 * 7,
   });
 }
 
@@ -74,6 +75,7 @@ export async function clearAuthCookie() {
     name: COOKIE_NAME,
     value: '',
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 0,
   });
