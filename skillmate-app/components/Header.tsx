@@ -39,7 +39,6 @@ export default function Header({ authenticated, onLogout }: HeaderProps) {
     { href: '/sessions', label: 'Scheduling' },    
     { href: '/notifications', label: 'Notifications' }, 
     { href: '/profile', label: 'Profile' },
-    { href: '/chat', label: 'Chat' },
   ];
 
   const isActive = (href: string) => pathname === href;
@@ -53,7 +52,7 @@ export default function Header({ authenticated, onLogout }: HeaderProps) {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-4">
+          <nav className="hidden lg:flex items-center space-x-2">
             {navItems.map(item => (
               <Button
                 key={item.href}
@@ -105,7 +104,7 @@ export default function Header({ authenticated, onLogout }: HeaderProps) {
           </nav>
 
           {/* Mobile Navigation */}
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="lg:hidden flex items-center space-x-2">
             <ModeToggle />
             
             <DropdownMenu>

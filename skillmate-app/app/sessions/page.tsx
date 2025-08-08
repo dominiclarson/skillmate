@@ -4,6 +4,11 @@
 
    import { useEffect, useState } from 'react';
    import { Badge } from '@/components/ui/badge';
+import router from 'next/router';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
+import { CheckCircle, Clock, Loader2, XCircle } from 'lucide-react';
+import { CardHeader, CardContent } from '@/components/ui/card';
+import { Card, Button } from '@radix-ui/themes';
    
    
    type Status =
@@ -54,164 +59,218 @@
      }, []);
    
   
-     useEffect(() => {
-      const qs = `?role=${role}`;   
-       fetch(`/api/sessions${qs}`)
-         .then((r) => r.json())
-         .then((d) => setSessions(Array.isArray(d) ? (d as Session[]) : []))
-         .catch(() => {})
-         .finally(() => setLoading(false));
-     }, [role]);
-   
-    
-     const patch = async (
-       id: number,
-       action: 'accept' | 'decline' | 'cancel'
-     ) => {
-       await fetch(`/api/sessions/${id}`, {
-         method: 'PATCH',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ action }),
-       });
-       /* optimistic update */
-       setSessions((prev) =>
-         prev.map((s) =>
-           s.id === id
-             ? {
-                 ...s,
-                 status:
-                   action === 'accept'
-                     ? 'accepted'
-                     : action === 'decline'
-                     ? 'declined'
-                     : 'cancelled',
-               }
-             : s
-         )
-       );
-     };
-   
-     /* splits */
-     const pending = sessions.filter((s) => s.status === 'requested');
-     const upcoming = sessions.filter((s) => s.status === 'accepted');
-     const history = sessions.filter(
-       (s) => s.status !== 'requested' && s.status !== 'accepted'
-     );
-   
-     return (
-       <main className="mx-auto max-w-5xl p-6">
-         {/* header */}
-         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-           <h1 className="text-3xl font-bold">My Sessions</h1>
-   
-           {/* role selector */}
-           <div className="flex gap-2">
-             {(['all', 'teacher', 'student'] as const).map((r) => (
-               <button
-                 key={r}
-                 onClick={() => setRole(r)}
-                 className={`px-3 py-1 rounded text-sm capitalize
-                   ${
-                     role === r
-                       ? 'bg-primary text-primary-foreground'
-                       : 'bg-muted text-muted-foreground hover:bg-accent'
-                   }`}
-               >
-                 {r}
-               </button>
-             ))}
-           </div>
-         </header>
-   
-         {loading && <p className="text-muted-foreground">Loading…</p>}
-   
-         {!loading && sessions.length === 0 && (
-           <p className="text-muted-foreground">You have no sessions yet.</p>
-         )}
-   
-         {!loading && sessions.length > 0 && (
-           <div className="space-y-8">
-             {[
-               { label: 'Pending', list: pending },
-               { label: 'Upcoming', list: upcoming },
-               { label: 'History', list: history },
-             ].map(({ label, list }) => (
-               <section key={label} className="space-y-4">
-                 <h2 className="text-xl font-semibold">
-                   {label}{' '}
-                   <span className="text-muted-foreground">({list.length})</span>
-                 </h2>
-   
-                 {list.length === 0 ? (
-                   <p className="text-muted-foreground">
-                     No {label.toLowerCase()} sessions.
-                   </p>
-                 ) : (
-                   <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                     {list.map((s) => {
-                       const meIsTeacher = currentUserId === s.teacher_id;
-                       const counterName = meIsTeacher
-                         ? s.studentName
-                         : s.teacherName;
-   
-                       return (
-                         <li
-                           key={s.id}
-                           className="border rounded-lg p-4 flex flex-col justify-between h-full"
-                         >
-                           <div className="space-y-1">
-                             <h3 className="font-semibold leading-tight">
-                               Lesson with {counterName}
-                             </h3>
-                             <p className="text-xs text-muted-foreground">
-                               {fmt(s.start_utc)} → {fmt(s.end_utc)}
-                             </p>
-                           </div>
-   
-                           <div className="mt-4 flex items-center justify-between">
-                             <Badge
-                               variant={colour[s.status]}
-                               className="capitalize"
-                             >
-                               {s.status}
-                             </Badge>
-   
-                             {/* actions only for pending list */}
-                             {label === 'Pending' &&
-                               (meIsTeacher ? (
-                                 <div className="flex gap-2">
-                                   <button
-                                     onClick={() => patch(s.id, 'accept')}
-                                     className="text-xs px-2 py-1 rounded bg-green-600 text-white hover:bg-green-700"
-                                   >
-                                     Accept
-                                   </button>
-                                   <button
-                                     onClick={() => patch(s.id, 'decline')}
-                                     className="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-                                   >
-                                     Decline
-                                   </button>
-                                 </div>
-                               ) : (
-                                 <button
-                                   onClick={() => patch(s.id, 'cancel')}
-                                   className="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-                                 >
-                                   Cancel
-                                 </button>
-                               ))}
-                           </div>
-                         </li>
-                       );
-                     })}
-                   </ul>
-                 )}
-               </section>
-             ))}
-           </div>
-         )}
-       </main>
-     );
-   }
-   
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const qs = role === 'all' ? '' : `?role=${role}`;
+      const res = await fetch(`/api/sessions${qs}`, { cache: 'no-store' });
+      if (res.status === 401) {
+        router.push('/login?callbackUrl=/sessions');
+        return;
+      }
+      let data: unknown = [];
+try {
+  
+  const text = await res.text();
+  data = text ? JSON.parse(text) : [];
+} catch {
+  data = [];
+}
++setSessions(Array.isArray(data) ? (data as Session[]) : []);
+      setLoading(false);
+    };
+    load();
+  }, [role, router]);
+
+  /* helper for patching status */
+  const patch = async (
+    id: number,
+    action: 'accept' | 'decline' | 'cancel'
+  ) => {
+    await fetch(`/api/sessions/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    });
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              status:
+                action === 'accept'
+                  ? 'accepted'
+                  : action === 'decline'
+                  ? 'declined'
+                  : 'cancelled',
+            }
+          : s
+      )
+    );
+  };
+
+  /* splits */
+  const pending = sessions.filter((s) => s.status === 'requested');
+  const upcoming = sessions.filter((s) => s.status === 'accepted');
+  const history = sessions.filter(
+    (s) => s.status !== 'requested' && s.status !== 'accepted'
+  );
+
+  /* ---------------------------------------------------------------- */
+  return (
+    <main className="container mx-auto px-4 py-8">
+      <div className="space-y-6 sm:space-y-8">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:justify-between">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
+              <CalendarCheck className="w-6 h-6 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                Lessons
+              </h1>
+              <p className="text-muted-foreground text-sm sm:text-base">Manage your skill sessions</p>
+            </div>
+          </div>
+          <Button asChild className="w-full sm:w-auto" variant="default" size="default">
+            <a href="/featured" className="flex items-center justify-center gap-2">
+              <GraduationCap size={16} />
+              <span className="sm:inline">Book a lesson</span>
+            </a>
+          </Button>
+        </header>
+
+        <div className="flex flex-wrap gap-2">
+          {(['all', 'student', 'teacher'] as const).map((r) => (
+            <Button
+              key={r}
+              variant={role === r ? 'default' : 'secondary'}
+              size="sm"
+              className=""
+              onClick={() => setRole(r)}
+            >
+              {r === 'all' ? 'All Sessions' : r === 'student' ? 'As Student' : 'As Teacher'}
+            </Button>
+          ))}
+        </div>
+
+        <Tabs defaultValue="pending" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="pending" className="flex items-center gap-1 px-2 sm:px-4">
+              <span className="truncate">Pending</span> 
+              <Badge variant="secondary" className="text-xs">{pending.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="upcoming" className="flex items-center gap-1 px-2 sm:px-4">
+              <span className="truncate">Upcoming</span> 
+              <Badge variant="secondary" className="text-xs">{upcoming.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-1 px-2 sm:px-4">
+              <span className="truncate">History</span> 
+              <Badge variant="secondary" className="text-xs">{history.length}</Badge>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="pending" className="space-y-4">
+            {pending.length === 0 ? (
+              <div className="text-center py-12">
+                <CalendarCheck className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No pending requests</p>
+                <p className="text-sm text-muted-foreground mt-1">New session requests will appear here</p>
+              </div>
+            ) : (
+              pending.map((s) => (
+                <Card key={s.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between pb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-semibold text-base sm:text-lg truncate">Session #{s.id}</span>
+                    </div>
+                    <Badge variant={badgeColor[s.status]} className="capitalize self-start">{s.status}</Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-start gap-2 text-muted-foreground">
+                      <CalendarCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span className="font-medium text-sm break-all">{fmt(s.start_utc)} → {fmt(s.end_utc)}</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button size="sm" variant="default" onClick={() => patch(s.id, 'accept')} className="flex-1">Accept</Button>
+                      <Button size="sm" variant="destructive" onClick={() => patch(s.id, 'decline')} className="flex-1">Decline</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="upcoming" className="space-y-4">
+            {upcoming.length === 0 ? (
+              <div className="text-center py-12">
+                <GraduationCap className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No upcoming lessons</p>
+                <p className="text-sm text-muted-foreground mt-1">Accepted sessions will appear here</p>
+              </div>
+            ) : (
+              upcoming.map((s) => (
+                <Card key={s.id} className="hover:shadow-md transition-shadow border-l-4 border-l-green-500">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between pb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-semibold text-base sm:text-lg truncate">Session #{s.id}</span>
+                    </div>
+                    <Badge variant={badgeColor[s.status]} className="capitalize self-start">{s.status}</Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-start gap-2 text-muted-foreground">
+                      <CalendarCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span className="font-medium text-sm break-all">{fmt(s.start_utc)} → {fmt(s.end_utc)}</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={() => patch(s.id, 'cancel')}
+                    >
+                      Cancel Session
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-4">
+            {history.length === 0 ? (
+              <div className="text-center py-12">
+                <CalendarCheck className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No session history</p>
+                <p className="text-sm text-muted-foreground mt-1">Completed and cancelled sessions will appear here</p>
+              </div>
+            ) : (
+              history.map((s) => (
+                <Card key={s.id} className="opacity-80 hover:opacity-100 transition-opacity">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between pb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-semibold text-base sm:text-lg truncate">Session #{s.id}</span>
+                    </div>
+                    <Badge variant={badgeColor[s.status]} className="capitalize self-start">{s.status}</Badge>
+                  </CardHeader>
+                  <CardContent className="">
+                    <div className="flex items-start gap-2 text-muted-foreground">
+                      <CalendarCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm break-all">{fmt(s.start_utc)} → {fmt(s.end_utc)}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {loading && (
+          <div className="flex items-center justify-center py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            <span className="ml-2 text-sm text-muted-foreground">Refreshing...</span>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}

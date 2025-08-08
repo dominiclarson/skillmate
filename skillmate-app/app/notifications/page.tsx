@@ -84,7 +84,7 @@ export default function NotificationsPage() {
     }[t] || t);
 
   return (
-    <main className="w-full lg:max-w-2xl lg:mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <main className="w-full container mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Notifications</h1>
         <div className="flex gap-2">

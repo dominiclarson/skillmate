@@ -1,6 +1,3 @@
-
-
-
 'use client';
 
 import { useState } from 'react';
@@ -45,7 +42,7 @@ export default function LoginPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success('Login successful!');
-        router.push('/');
+        window.location.href = '/';
       } else {
         toast.error(data.error || 'Login failed');
       }

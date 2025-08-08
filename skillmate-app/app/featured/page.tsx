@@ -70,8 +70,7 @@ export default function FeaturedPage() {
   const clearSearch = () => setSearchTerm('');
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="max-w-7xl mx-auto p-6 space-y-8">
+    <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Header & Search */}
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -109,19 +108,20 @@ export default function FeaturedPage() {
             No skills match "{searchTerm}".
           </p>
         ) : (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredSkills.map(skill => (
               <Link key={skill.id} href={`/skills/${skill.id}`}>
                 <div
                   className={`group cursor-pointer transform transition duration-200
                     hover:scale-105 hover:shadow-lg rounded-lg border p-6 flex flex-col items-center
+                    h-40 justify-center
                     ${activeSection.id === skill.id
                       ? 'bg-accent border-primary text-accent-foreground'
                       : 'bg-card border-border text-card-foreground hover:bg-accent/50'
                     }`}
                 >
-                  <span className="text-5xl mb-4">{skill.emoji}</span>
-                  <span className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  <span className="text-4xl mb-3">{skill.emoji}</span>
+                  <span className="text-sm font-semibold group-hover:text-primary transition-colors text-center leading-tight line-clamp-2">
                     {skill.name}
                   </span>
                 </div>
@@ -144,6 +144,5 @@ export default function FeaturedPage() {
           </div>
         )}
       </main>
-    </div>
   );
 }

@@ -5,7 +5,7 @@ import { getSession } from '@/lib/auth-utils';
 export async function POST(req: NextRequest) {
   try {
     const session = await getSession();
-    if (!session) return [];
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { latitude, longitude } = await req.json();
     const userId = session.id; // Replace with session/auth user ID
