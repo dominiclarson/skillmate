@@ -39,7 +39,6 @@ export default function Header({ authenticated, onLogout }: HeaderProps) {
     { href: '/sessions', label: 'Scheduling' },    
     { href: '/notifications', label: 'Notifications' }, 
     { href: '/profile', label: 'Profile' },
-    { href: '/chat', label: 'Chat' },
   ];
 
   const isActive = (href: string) => pathname === href;
