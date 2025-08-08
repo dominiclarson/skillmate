@@ -1,162 +1,200 @@
 
-
 'use client';
 
-import { useEffect, useState } from 'react';
-import { SendHorizonal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useLayoutEffect,
+} from 'react';
+import useSocket from '@/lib/useSocket';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { SendHorizonal } from 'lucide-react';
 
 interface Friend {
   id: number;
   name: string;
   email: string;
 }
-
-interface Message {
-  id: number;
-  content: string;
+interface Msg {
+  id?: number;
   sender_id: number;
   receiver_id: number;
-  timestamp: string;
+  content: string;
+  ts: number;          
+  failed?: boolean;    
 }
 
-export default function ChatPage() {
-  const [friends, setFriends] = useState<Friend[]>([]);
-  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
-  // Fetch session and friends
+const room = (a: number, b: number) => [a, b].sort().join('-');
+
+/* main component */
+export default function ChatPage() {
+ 
+  const [me, setMe]           = useState<number | null>(null);
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [sel, setSel]         = useState<Friend | null>(null);
+  const [msgs, setMsgs]       = useState<Msg[]>([]);
+  const [text, setText]       = useState('');
+  const [typingFromFriend, setTypingFromFriend] = useState(false);
+
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  /* session + friends */
   useEffect(() => {
     fetch('/api/auth/session')
-      .then(res => res.json())
-      .then(data => {
-        if (data?.session?.id) {
-          setCurrentUserId(data.session.id);
-          fetch('/api/chat/connections')
-            .then(res => res.json())
-            .then(setFriends)
-            .catch(err => console.error('Failed to load friends:', err));
-        } else {
-          console.error('Session data is missing or malformed:', data);
-        }
-      })
-      .catch(err => console.error('Failed to fetch session:', err));
+      .then((r) => r.json())
+      .then((d) => setMe(d?.session?.id ?? null));
+
+    fetch('/api/chat/connections')
+      .then((r) => r.json())
+      .then(setFriends)
+      .catch(() => {});
   }, []);
 
-  // Load messages 
+  /*load history */
   useEffect(() => {
-    if (!selectedFriend) return;
-    fetch(`/api/chat/messages?userId=${selectedFriend.id}`)
-      .then(res => res.json())
-      .then(setMessages)
-      .catch(err => console.error('Failed to fetch messages:', err));
-  }, [selectedFriend]);
+    if (!sel) return;
+    fetch(`/api/chat/messages?userId=${sel.id}`)
+      .then((r) => r.json())
+      .then((d) => setMsgs(Array.isArray(d) ? d : []))
+      .catch(() => setMsgs([]));
+  }, [sel]);
 
-  // Send a message
-  const handleSend = async () => {
-    if (!newMessage.trim() || !selectedFriend || !currentUserId) return;
+  /*socket setup */
+  const r = sel && me ? room(me, sel.id) : 'noop';
+  const { send } = useSocket<any>(r, (payload) => {
+    if (payload.type === 'msg') {
+      setMsgs((p) => [...p, payload.data as Msg]);
+    } else if (payload.type === 'typing') {
+      setTypingFromFriend(true);
+      setTimeout(() => setTypingFromFriend(false), 3000);
+    }
+  });
 
-    const res = await fetch('/api/chat/send', {
+  /* scroll on new msgs  */
+  useLayoutEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [msgs, typingFromFriend]);
+
+  /* ───── send helpers  */
+  const emitTyping = useCallback(() => {
+    if (sel) send({ type: 'typing' });
+  }, [sel, send]);
+
+  const handleSend = useCallback(() => {
+    if (!text.trim() || !sel || !me) return;
+
+    const optimistic: Msg = {
+      sender_id: me,
+      receiver_id: sel.id,
+      content: text.trim(),
+      ts: Date.now(),
+    };
+    setMsgs((p) => [...p, optimistic]);
+    setText('');
+
+    /* websocket broadcast */
+    send({ type: 'msg', data: optimistic });
+
+    
+    fetch('/api/chat/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        toUserId: selectedFriend.id,
-        content: newMessage.trim(),
-      }),
+      body: JSON.stringify({ toUserId: sel.id, content: optimistic.content }),
+    }).catch(() => {
+      // flag failure
+      setMsgs((p) =>
+        p.map((m) =>
+          m === optimistic ? { ...m, failed: true } : m
+        )
+      );
     });
+  }, [text, sel, me, send]);
 
-    if (res.ok) {
-      const msg = {
-        id: Date.now(),
-        content: newMessage.trim(),
-        sender_id: currentUserId,
-        receiver_id: selectedFriend.id,
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, msg]);
-      setNewMessage('');
-    }
-  };
-
+  /*  UI */
   return (
     <div className="flex h-[calc(100vh-64px)]">
-      {/* Sidebar  */}
-      <div className="w-1/3 border-r border-border overflow-y-auto p-4 bg-muted/30">
-        <h2 className="text-lg font-semibold mb-4 text-foreground">Friends</h2>
-        {friends.length === 0 ? (
-          <p className="text-muted-foreground">No connections</p>
-        ) : (
-          <ul className="space-y-2">
-            {friends.map(friend => (
-              <li
-                key={friend.id}
-                className={`cursor-pointer p-2 rounded hover:bg-accent transition-colors ${
-                  selectedFriend?.id === friend.id ? 'bg-accent text-accent-foreground' : ''
-                }`}
-                onClick={() => setSelectedFriend(friend)}
-              >
-                <div className="font-medium text-foreground">{friend.name}</div>
-                <div className="text-sm text-muted-foreground">{friend.email}</div>
-              </li>
-            ))}
-          </ul>
+      {/* friends list */}
+      <aside className="w-64 shrink-0 border-r px-4 py-6 bg-muted/40 overflow-y-auto">
+        <h2 className="text-lg font-semibold mb-4">Friends</h2>
+        {friends.length === 0 && (
+          <p className="text-sm text-muted-foreground">No connections yet.</p>
         )}
-      </div>
+        <ul className="space-y-2">
+          {friends.map((f) => (
+            <li
+              key={f.id}
+              onClick={() => setSel(f)}
+              className={`cursor-pointer p-2 rounded hover:bg-accent transition
+                ${sel?.id === f.id ? 'bg-accent text-accent-foreground' : ''}`}
+            >
+              <div className="font-medium">{f.name}</div>
+              <div className="text-xs text-muted-foreground">{f.email}</div>
+            </li>
+          ))}
+        </ul>
+      </aside>
 
-      {/* Chat window */}
-      <div className="flex-1 flex flex-col p-4 bg-background">
-        {selectedFriend ? (
-          <>
-            <div className="border-b border-border pb-2 mb-4">
-              <h3 className="text-xl font-bold text-foreground">
-                Chat with {selectedFriend.name}
-              </h3>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-2 mb-4 px-2">
-              {messages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`max-w-xs px-3 py-2 rounded-lg ${
-                    msg.sender_id === currentUserId
-                      ? 'ml-auto bg-primary text-primary-foreground'
-                      : 'mr-auto bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {msg.content}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-2">
-              <Input
-                type="default"
-                value={newMessage}
-                onChange={e => setNewMessage(e.target.value)}
-                className="flex-1"
-                placeholder="Type a message..."
-                onKeyPress={e => e.key === 'Enter' && handleSend()}
-              />
-              <Button
-                variant="default"
-                size="default"
-                onClick={handleSend}
-                className="px-4 py-2 flex items-center gap-1"
-                disabled={!newMessage.trim()}
-              >
-                <SendHorizonal size={16} />
-              </Button>
-            </div>
-          </>
-        ) : (
-          <div className="text-muted-foreground text-center mt-20">
+      {/* chat panel */}
+      <main className="flex-1 flex flex-col">
+        {!sel ? (
+          <div className="m-auto text-muted-foreground">
             Select a friend to start chatting.
           </div>
+        ) : (
+          <>
+            {/* header */}
+            <header className="border-b px-6 py-3">
+              <h3 className="text-xl font-bold">Chat with {sel.name}</h3>
+            </header>
+
+            {/* message list */}
+            <section className="flex-1 overflow-y-auto px-6 py-4 space-y-2 bg-background">
+              {msgs.map((m, i) => (
+                <div
+                  key={i}
+                  className={`max-w-xs px-3 py-2 rounded relative ${
+                    m.sender_id === me
+                      ? 'ml-auto bg-primary text-primary-foreground'
+                      : 'mr-auto bg-muted'
+                  } ${m.failed ? 'ring-2 ring-red-500' : ''}`}
+                >
+                  {m.content}
+                </div>
+              ))}
+
+              {/* typing indicator */}
+              {typingFromFriend && (
+                <div className="mr-auto text-sm text-muted-foreground">
+                  {sel.name} is typing…
+                </div>
+              )}
+
+              <div ref={bottomRef} />
+            </section>
+
+            {/* input bar */}
+            <footer className="border-t px-6 py-3">
+              <div className="flex gap-2">
+                <Input
+                    value={text}
+                    onChange={(e) => {
+                      setText(e.target.value);
+                      emitTyping();
+                    } }
+                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                    placeholder="Type a message…" className={undefined} type={undefined}                />
+                <Button disabled={!text.trim()} onClick={handleSend} className={undefined} variant={undefined} size={undefined}>
+                  <SendHorizonal size={16} />
+                </Button>
+              </div>
+            </footer>
+          </>
         )}
-      </div>
+      </main>
     </div>
   );
 }
