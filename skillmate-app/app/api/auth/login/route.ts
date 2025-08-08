@@ -8,6 +8,8 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
+    console.log('Login attempt:', { email, nodeEnv: process.env.NODE_ENV });
+
     const user = await findUserByEmail(email);
     if (!user) {
       console.error('Login failed: user not found');
@@ -20,7 +22,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
+    console.log('Setting auth cookie for user:', user.id);
     await setAuthCookie({ id: user.id, email: user.email });
+    console.log('Auth cookie set successfully');
+    
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('Login error:', err);
