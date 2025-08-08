@@ -8,6 +8,13 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { CalendarCheck, GraduationCap } from 'lucide-react';
+import {
+  CheckCircle,
+  XCircle,
+  CalendarPlus,
+  Clock,
+  Loader2,
+} from 'lucide-react';
 
 
 type Status =
@@ -17,27 +24,18 @@ type Status =
   | 'cancelled'
   | 'completed';
 
-type Session = {
+export type Session = {
   id: number;
   teacher_id: number;
   student_id: number;
   start_utc: string;
   end_utc: string;
   status: Status;
+  teacherName: string;
+  studentName: string;
+  skillName: string | null;
 };
 
-const fmt = (ts: string) => {
-  const d = ts.includes('T')
-    ? new Date(ts)
-    : new Date(ts.replace(' ', 'T') + 'Z');
-
-  return isNaN(d.valueOf())
-    ? ts
-    : d.toLocaleString(undefined, {
-        dateStyle: 'short',   
-        timeStyle: 'short',   
-      });
-};
 const badgeColor: Record<Status, 'secondary' | 'destructive' | 'success'> = {
   requested: 'secondary',
   accepted: 'success',
@@ -47,61 +45,93 @@ const badgeColor: Record<Status, 'secondary' | 'destructive' | 'success'> = {
 };
 
 
+const fmt = (ts: string) => {
+  const d = ts.includes('T')
+    ? new Date(ts)
+    : new Date(ts.replace(' ', 'T') + 'Z');
+  return d.toLocaleString(undefined, {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  });
+};
+
+
 export default function SessionsPage() {
   const router = useRouter();
-  const [role, setRole] = useState<'all' | 'student' | 'teacher'>('all');
+
+
+  const [role, setRole] = useState<'all' | 'teacher' | 'student'>('all');
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
  
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then((r) => r.json())
+      .then((d) => setCurrentUserId(d?.session?.id ?? null))
+      .catch(() => {});
+  }, []);
+
+  
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       const qs = role === 'all' ? '' : `?role=${role}`;
       const res = await fetch(`/api/sessions${qs}`, { cache: 'no-store' });
-
       if (res.status === 401) {
         router.push('/login?callbackUrl=/sessions');
         return;
       }
-      const data = (await res.json().catch(() => [])) as Session[];
-      setSessions(Array.isArray(data) ? data : []);
+      let data: unknown = [];
+try {
+  
+  const text = await res.text();
+  data = text ? JSON.parse(text) : [];
+} catch {
+  data = [];
+}
++setSessions(Array.isArray(data) ? (data as Session[]) : []);
       setLoading(false);
     };
     load();
   }, [role, router]);
 
-  
-  const patch = (id: number, action: 'accept' | 'decline' | 'cancel') =>
-    fetch(`/api/sessions/${id}`, {
+  /* helper for patching status */
+  const patch = async (
+    id: number,
+    action: 'accept' | 'decline' | 'cancel'
+  ) => {
+    await fetch(`/api/sessions/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action }),
-    }).then(() =>
-      setSessions((prev) =>
-        prev.map((s) =>
-          s.id === id
-            ? {
-                ...s,
-                status:
-                  action === 'accept'
-                    ? 'accepted'
-                    : action === 'decline'
-                    ? 'declined'
-                    : 'cancelled',
-              }
-            : s
-        )
+    });
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              status:
+                action === 'accept'
+                  ? 'accepted'
+                  : action === 'decline'
+                  ? 'declined'
+                  : 'cancelled',
+            }
+          : s
       )
     );
+  };
 
-  
+  /* splits */
   const pending = sessions.filter((s) => s.status === 'requested');
   const upcoming = sessions.filter((s) => s.status === 'accepted');
   const history = sessions.filter(
-    (s) => s.status === 'completed' || s.status === 'declined' || s.status === 'cancelled'
+    (s) => s.status !== 'requested' && s.status !== 'accepted'
   );
 
+  /* ---------------------------------------------------------------- */
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="space-y-6 sm:space-y-8">

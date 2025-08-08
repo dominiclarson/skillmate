@@ -8,7 +8,18 @@ export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const [rows] = await pool.execute('SELECT id, email, name, bio FROM Users WHERE id = ?', [session.id],);
+  const [rows] = await pool.execute(
+      `SELECT id,
+              email,
+              first_name   AS firstName,
+              last_name    AS lastName,
+              CONCAT_WS(' ', first_name, last_name) AS name,
+              bio
+         FROM Users
+        WHERE id = ?`,
+      [session.id]
+    );
+    
   const [skillsW] = await pool.execute('SELECT skill_id FROM user_wants_skill WHERE user_id = ?',[session.id]);
   const [skillsH] = await pool.execute('SELECT skill_id FROM user_has_skill WHERE user_id = ?',[session.id])
  return NextResponse.json({

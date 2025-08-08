@@ -16,6 +16,8 @@ import { toast } from 'react-toastify';
 import Link from 'next/link';
 
 const formSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName:  z.string().min(1,  'Last name is required'),
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
@@ -29,6 +31,8 @@ export default function SignupPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
     },
@@ -72,6 +76,39 @@ export default function SignupPage() {
         <CardContent className="">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => {
+                return (
+                  <FormItem className={undefined}>
+                    <FormLabel className={undefined}>First name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="joe" {...field} />
+                    </FormControl>
+                    <FormMessage className={undefined} />
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => {
+                return (
+                  <FormItem className={undefined}>
+                    <FormLabel className={undefined}>Last name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="doe" {...field} />
+                    </FormControl>
+                    <FormMessage className={undefined} />
+                  </FormItem>
+                );
+              }}
+            />
+  
+
+
               <FormField
                 control={form.control}
                 name="email"

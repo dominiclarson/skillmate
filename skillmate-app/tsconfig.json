@@ -50,7 +50,7 @@
     "components/ui/sidebar.tsx",
     "scripts/test-db.cjs",
     "lib/db.ts"
-  ],
+, "tests/SignIn.test.jsx", "tests/LoginPage.test.jsx", "tests/LoadingSpinner.test.jsx"  ],
   "exclude": [
     "node_modules",
     "cypress"
