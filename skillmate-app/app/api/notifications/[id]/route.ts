@@ -1,6 +1,6 @@
 
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { getSession } from '@/lib/auth-utils';
 
@@ -8,7 +8,7 @@ export const runtime = 'nodejs';
 
 export async function PATCH(
   _req: Request,
-  ctx: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const me = await getSession();
@@ -16,7 +16,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
  
-    const { id } = await ctx.params;
+    const { id } = await params;
 
     await pool.execute(
       `UPDATE Notifications
@@ -33,16 +33,16 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: Request,
-  ctx: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const me = await getSession();
-    if (!me)
+    if (!me) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-   
-    const { id } = await ctx.params;
+    const { id } = await params;
 
     await pool.execute(
       `UPDATE Notifications

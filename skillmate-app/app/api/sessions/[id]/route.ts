@@ -9,7 +9,7 @@ export const runtime = 'nodejs';
 
 export async function PATCH(
   req: Request,
-  ctx: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const me = await getSession();
   if (!me) {
@@ -17,7 +17,7 @@ export async function PATCH(
   }
 
   
-  const { id } = await ctx.params;
+  const { id } = await params;
   const sessionId = Number(id);
   if (!sessionId) {
     return NextResponse.json({ error: 'Bad id' }, { status: 400 });
