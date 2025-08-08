@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -9,6 +7,13 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { skills, Skill } from '@/lib/skills';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState({ name: '', bio: '', email: '' ,selectedSkillsW:'' ,selectedSkillsH:''});
@@ -120,240 +125,222 @@ export default function ProfilePage() {
   };
 
   return (
-    <><div className="max-w-3xl mx-auto mt-12 p-6 rounded-xl bg-white dark:bg-gray-800 shadow">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">My Profile</h1>
-      <div className="space-y-6">
-        {/* Profile Info */}
-        <div>
-          <label className="block font-semibold text-gray-700 dark:text-gray-300">Email</label>
-          <div className="border px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white">{profile.email}</div>
-        </div>
-
-        <div>
-          <label className="block font-semibold text-gray-700 dark:text-gray-300">Name</label>
-          <input
-            value={profile.name || ''}
-            onChange={e => setProfile({ ...profile, name: e.target.value })}
-            className="border px-3 py-2 rounded w-full dark:bg-gray-700 dark:text-white"
-            disabled={!editing} />
-        </div>
-
-        <div>
-          <label className="block font-semibold text-gray-700 dark:text-gray-300">Bio</label>
-          <textarea
-            value={profile.bio || ''}
-            onChange={e => setProfile({ ...profile, bio: e.target.value })}
-            className="border px-3 py-2 rounded w-full dark:bg-gray-700 dark:text-white"
-            rows={4}
-            disabled={!editing} />
-        </div>
-
-        {!loading && ( /* Skills I have */
-          <div>
-            <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I have</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {skills.map(skill => (
-                <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
-                  <input
-                    type="checkbox"
-                    checked={selectedSkillsH.includes(Number(skill.id))}
-                    onChange={() => {
-                      const id = Number(skill.id);
-                      setselectedSkillsH(prev => prev.includes(id)
-                        ? prev.filter(s => s !== id)
-                        : [...prev, id]
-                      );
-                    } }
-                    disabled={!editing} />
-                  {skill.name}
-                </label>
-              ))}
-            </div>
+    <div className="container mx-auto py-8 px-4">
+      <div className="space-y-8">
+        <h1 className="text-2xl font-semibold">My Profile</h1>
+        
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="email" className="">Email</Label>
+            <Input id="email" type="email" value={profile.email} disabled className="bg-muted" />
           </div>
-        )}
 
-        <hr className="my-8 border-t" />
-        {!loading && ( /* Skills I'm interested in */
-          <div>
-            <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Skills I'm interested in</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {skills.map(skill => (
-                <label key={skill.name} className="flex items-center gap-2 text-gray-800 dark:text-white">
-                  <input
-                    type="checkbox"
-                    checked={selectedSkillsW.includes(Number(skill.id))}
-                    onChange={() => {
-                      const id = Number(skill.id);
-                      setselectedSkillsW(prev => prev.includes(id)
-                        ? prev.filter(s => s !== id)
-                        : [...prev, id]
-                      );
-                    } }
-                    disabled={!editing} />
-                  {skill.name}
-                </label>
-              ))}
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="name" className="">Name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={profile.name || ''}
+              onChange={e => setProfile({ ...profile, name: e.target.value })}
+              disabled={!editing}
+              className=""
+            />
           </div>
-        )}
 
-        <div className="flex justify-end gap-4">
-          {!editing ? (
-            <button
-              onClick={() => setEditing(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow"
-            >
-              <Pencil size={16} /> Edit
-            </button>
-          ) : (
-            <button
-              onClick={handleSave}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow"
-            >
-              <Save size={16} /> Save
-            </button>
+          <div className="space-y-2">
+            <Label htmlFor="bio" className="">Bio</Label>
+            <Textarea
+              id="bio"
+              value={profile.bio || ''}
+              onChange={e => setProfile({ ...profile, bio: e.target.value })}
+              rows={4}
+              disabled={!editing}
+            />
+          </div>
+
+          {!loading && (
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Skills I have</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {skills.map(skill => (
+                  <div key={skill.name} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`skill-have-${skill.id}`}
+                      checked={selectedSkillsH.includes(Number(skill.id))}
+                      onCheckedChange={() => {
+                        const id = Number(skill.id)
+                        setselectedSkillsH(prev => 
+                          prev.includes(id)
+                            ? prev.filter(s => s !== id)
+                            : [...prev, id]
+                        );
+                      }}
+                      disabled={!editing}
+                      className=""
+                    />
+                    <Label htmlFor={`skill-have-${skill.id}`} className="text-sm font-normal">
+                      {skill.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
+
+          <Separator className="" />
+          
+          {!loading && (
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Skills I'm interested in</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {skills.map(skill => (
+                  <div key={skill.name} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`skill-want-${skill.id}`}
+                      checked={selectedSkillsW.includes(Number(skill.id))}
+                      onCheckedChange={() => {
+                        const id = Number(skill.id)
+                        setselectedSkillsW(prev => 
+                          prev.includes(id)
+                            ? prev.filter(s => s !== id)
+                            : [...prev, id]
+                        );
+                      }}
+                      disabled={!editing}
+                      className=""
+                    />
+                    <Label htmlFor={`skill-want-${skill.id}`} className="text-sm font-normal">
+                      {skill.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2">
+            {!editing ? (
+              <Button onClick={() => setEditing(true)} variant="default" size="default" className="gap-2 text-white">
+                <Pencil size={16} /> Edit
+              </Button>
+            ) : (
+              <Button onClick={handleSave} variant="default" size="default" className="gap-2">
+                <Save size={16} /> Save
+              </Button>
+            )}
+          </div>
         </div>
 
-        {/* Incoming Requests */}
-        <hr className="my-8 border-t" />
-        <div>
-          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Incoming Friend Requests</h2>
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Incoming Friend Requests</h2>
           {incomingRequests.length === 0 ? (
-            <p className="text-gray-600 dark:text-gray-400">No requests.</p>
+            <p className="text-muted-foreground">No requests.</p>
           ) : (
-            <ul className="space-y-4">
+            <div className="space-y-4">
               {incomingRequests.map((req: any) => (
-                <li key={req.id} className="flex justify-between items-center border rounded px-4 py-2 dark:bg-gray-700">
+                <div key={req.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4">
                   <div>
-                    <div className="font-semibold text-white">{req.name}</div>
-                    <div className="text-sm text-gray-400">{req.email}</div>
+                    <div className="font-semibold">{req.name}</div>
+                    <div className="text-sm text-muted-foreground">{req.email}</div>
                   </div>
                   <div className="flex gap-2">
-                    <button
+                    <Button
                       onClick={() => handleRespond(req.id, true)}
-                      className="px-2 py-1 bg-green-600 text-white rounded flex items-center gap-1"
+                      size="sm"
+                      variant="default"
+                      className="gap-1"
                     >
                       <ThumbsUp size={16} /> Accept
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleRespond(req.id, false)}
-                      className="px-2 py-1 bg-red-600 text-white rounded flex items-center gap-1"
+                      size="sm"
+                      variant="destructive"
+                      className="gap-1"
                     >
                       <ThumbsDown size={16} /> Reject
-                    </button>
+                    </Button>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 
-        {/* Other Users */}
-        <hr className="my-8 border-t" />
-        <div>
-          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
-            Connect With Other Users
-          </h2>
-
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Connect With Other Users</h2>
           {otherUsers
             .filter((user: any) => {
-              // hide people you’re connected to 
-              const isFriend = confirmedFriends.some((f: any) => f.id === user.id);
-              const isPending = pendingRequests.includes(user.id); // you sent
-              const isIncoming = incomingRequests.some((r: any) => r.sender_id === user.id); // they sent
+              const isFriend   = confirmedFriends.some((f: any) => f.id === user.id);
+              const isPending  = pendingRequests.includes(user.id);
+              const isIncoming = incomingRequests.some((r: any) => r.sender_id === user.id);
               return !isFriend && !isPending && !isIncoming;
             })
             .length === 0 ? (
-            <p className="text-gray-600 dark:text-gray-400">
-              No other users available.
-            </p>
-          ) : (
-            <ul className="space-y-4">
-              {otherUsers
-                .filter((user: any) => {
-                  const isFriend = confirmedFriends.some((f: any) => f.id === user.id);
-                  const isPending = pendingRequests.includes(user.id);
-                  const isIncoming = incomingRequests.some(
-                    (r: any) => r.sender_id === user.id
-                  );
-                  return !isFriend && !isPending && !isIncoming;
-                })
-                .map((user: any) => (
-                  <li
-                    key={user.id}
-                    className="flex items-center justify-between border rounded px-4 py-2 dark:bg-gray-700"
-                  >
-                    <div>
-                      <div className="font-semibold text-gray-800 dark:text-white">
-                        {user.name}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-300">
-                        {user.email}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handleConnect(user.id)}
-                      className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
-                    >
-                      <UserPlus size={16} /> Connect
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          )}
+              <p className="text-muted-foreground">
+                No other users available.
+              </p>
+            ) : (
+              <Table className="">
+                <TableHeader className="">
+                  <TableRow className="">
+                    <TableHead className="">Name</TableHead>
+                    <TableHead className="">Email</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="">
+                  {otherUsers
+                    .filter((user: any) => {
+                      const isFriend   = confirmedFriends.some((f: any) => f.id === user.id);
+                      const isPending  = pendingRequests.includes(user.id);
+                      const isIncoming = incomingRequests.some(
+                        (r: any) => r.sender_id === user.id
+                      );
+                      return !isFriend && !isPending && !isIncoming;
+                    })
+                    .map((user: any) => (
+                      <TableRow key={user.id} className="">
+                        <TableCell className="font-semibold">{user.name}</TableCell>
+                        <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            onClick={() => handleConnect(user.id)}
+                            size="sm"
+                            variant="default"
+                            className="gap-1"
+                          >
+                            <UserPlus size={16} /> Connect
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            )}
         </div>
 
-        {/* Confirmed Friends */}
-        <hr className="my-8 border-t" />
-        <div>
-          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Friends</h2>
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Friends</h2>
           {confirmedFriends.length === 0 ? (
-            <p className="text-gray-600 dark:text-gray-400">No confirmed friends yet.</p>
+            <p className="text-muted-foreground">No confirmed friends yet.</p>
           ) : (
-            <ul className="space-y-4">
+            <div className="space-y-4">
               {confirmedFriends.map((friend: any) => (
-                <li key={friend.id} className="flex items-center justify-between border rounded px-4 py-2 dark:bg-gray-700">
+                <div key={friend.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4">
                   <div>
-                    <div className="font-semibold text-white">{friend.name}</div>
-                    <div className="text-sm text-gray-400">{friend.email}</div>
+                    <div className="font-semibold">{friend.name}</div>
+                    <div className="text-sm text-muted-foreground">{friend.email}</div>
                   </div>
-                  <div className="text-blue-400 flex items-center gap-1">
+                  <div className="text-primary flex items-center gap-1">
                     <Users size={16} /> Connected
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>
-    </div><hr className="my-8 border-t" /><div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 p-4 rounded">
-        <h3 className="font-bold text-red-700 dark:text-red-300 mb-2">
-          Delete Account
-        </h3>
-        <p className="text-sm text-red-600 dark:text-red-400 mb-4">
-          Deleting your account is irreversible. 
-        </p>
-        <button
-          onClick={async () => {
-            if (!confirm(
-              'This will permanently delete your account.'
-            ))
-              return;
-
-            const res = await fetch('/api/account', { method: 'DELETE' });
-            if (res.ok) {
-              alert('Account deleted. Goodbye!');
-              window.location.href = '/';
-            } else {
-              alert('Failed to delete account.');
-            }
-          } }
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-        >
-          Delete my account
-        </button>
-      </div></>
+    </div>
   );
 }

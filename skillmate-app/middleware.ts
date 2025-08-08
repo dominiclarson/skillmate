@@ -2,12 +2,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const protectedRoutes = ['/profile', '/chat'];
+const publicRoutes = ['/', '/login', '/signup'];
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get(process.env.COOKIE_NAME || '')?.value;
 
-  if (protectedRoutes.some(path => req.nextUrl.pathname.startsWith(path))) {
+  if (!publicRoutes.some(path => req.nextUrl.pathname === path)) {
     if (!token) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
@@ -17,5 +17,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/profile', '/chat'], // Adjust as needed
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
