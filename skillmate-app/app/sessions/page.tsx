@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,14 +7,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { CalendarCheck, GraduationCap } from 'lucide-react';
-import {
-  CheckCircle,
-  XCircle,
-  CalendarPlus,
-  Clock,
-  Loader2,
-} from 'lucide-react';
-
 
 type Status =
   | 'requested'

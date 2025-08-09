@@ -1,3 +1,16 @@
+/**
+ * @fileoverview HomePage component - Main landing and dashboard page for SkillMate application
+ * 
+ * Serves dual purposes based on authentication state:
+ * - Unauthenticated users: Marketing landing page with skill search and featured categories
+ * - Authenticated users: Personalized dashboard with quick actions and skill sharing opportunities
+ * 
+ * @component HomePage - Main page component with authentication-based rendering
+ * @hook useState<boolean | null> isAuth - Authentication state (null=loading, true=authenticated, false=unauthenticated)  
+ * @hook useState<string> query - Search query string for skill filtering on landing page
+ * @function useEffect - Detects authentication status via /api/auth/session endpoint
+ */
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -8,30 +21,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { allSections, Skill } from '@/lib/skills';
 
-/**
- * HomePage Component - Main landing and dashboard page for SkillMate
- * 
- * This component serves dual purposes based on authentication state:
- * - **Unauthenticated users**: Displays marketing landing page with skill search and featured categories
- * - **Authenticated users**: Shows personalized dashboard with quick actions and skill sharing opportunities
- * 
- * @remarks
- * The component automatically detects user authentication status via `/api/auth/session` endpoint
- * and renders the appropriate interface. It includes skill search functionality, featured skill categories,
- * and call-to-action sections optimized for user engagement.
- * 
- * @example
- * ```tsx
- * // Rendered automatically at root path "/"
- * <HomePage />
- * ```
- * 
- * @returns React component that renders either landing page or dashboard based on auth state
- */
 function HomePage() {
-  /** Authentication state: null (loading), true (authenticated), false (unauthenticated) */
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
-  /** Search query string for skill filtering on landing page */
   const [query, setQuery] = useState('');
 
   useEffect(() => {

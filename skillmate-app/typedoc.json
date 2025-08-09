@@ -2,7 +2,7 @@
   "name": "SkillMate App Documentation",
   "entryPoints": [
     "app/**/*.tsx",
-    "app/**/*.ts",
+    "app/**/*.ts"
   ],
   "entryPointStrategy": "expand",
   "out": "docs",
@@ -29,35 +29,40 @@
     "notDocumented": false
   },
   "commentStyle": "jsdoc",
-  "blockTags": [
-    "@param",
-    "@returns", 
-    "@example",
-    "@remarks",
-    "@see",
-    "@route",
-    "@throws",
-    "@warning",
-    "@group"
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Project",
+    "Module",
+    "Namespace",
+    "Enum",
+    "EnumMember",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Constructor",
+    "Property",
+    "Variable",
+    "Function",
+    "Accessor",
+    "Method",
+    "Parameter",
+    "TypeParameter",
+    "TypeLiteral",
+    "CallSignature",
+    "ConstructorSignature",
+    "IndexSignature",
+    "GetSignature",
+    "SetSignature"
   ],
-  "categorizeByGroup": true,
-  "defaultCategory": "Other",
-  "groupOrder": [
-    "API Endpoints",
-    "Components", 
-    "Pages",
-    "Utilities",
-    "Types",
-    "*"
-  ],
-  "categoryOrder": [
-    "Components",
-    "Pages",
-    "Utils",
-    "Types",
-    "*",
-    "Other"
-  ],
+  "navigationLinks": {
+    "SkillMate": "/"
+  },
+  "sidebarLinks": {
+    "GitHub": "https://github.com/skillmate/skillmate-app"
+  },
+  "hideGenerator": false,
+  "cacheBust": false,
+  "cleanOutputDir": true,
   "skipErrorChecking": true,
   "compilerOptions": {
     "skipLibCheck": true
