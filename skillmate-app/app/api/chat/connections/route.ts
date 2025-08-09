@@ -4,17 +4,7 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth-utils';
 import pool from '@/lib/db';
 
-/**
- * Chat connections endpoint
- * 
- * Retrieves all users that the authenticated user can chat with (accepted friends).
- * 
- * @route GET /api/chat/connections
- * @returns JSON array of user objects containing id, name, and email fields
- * @throws {401} When user is not authenticated
- * @throws {500} When connections retrieval fails due to database error
- * 
- */
+
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

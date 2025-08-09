@@ -6,16 +6,7 @@ import { getSession } from '@/lib/auth-utils';
 import pool from '@/lib/db';
 import { notify } from '@/lib/schedule-utils';
 
-/**
- * Incoming friend requests endpoint
- * 
- * Retrieves pending friend requests received by the authenticated user.
- * 
- * @route GET /api/friends/incoming
- * @returns JSON array of incoming request objects with id, sender_id, name, and email fields
- * @throws {401} When user is not authenticated
- * 
- */
+
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -31,22 +22,7 @@ export async function GET() {
   return NextResponse.json(rows);
 }
 
-/**
- * Accept/reject friend request endpoint
- * 
- * Allows the authenticated user to accept or reject an incoming friend request.
- * 
- * @route POST /api/friends/incoming
- * @param req - Request object containing response to friend request
- * @param req.requestId - ID of the friend request to respond to
- * @param req.accepted - Boolean indicating whether to accept (true) or reject (false) the request
- * @returns JSON response with success status
- * @throws {401} When user is not authenticated
- * @throws {400} When requestId is missing
- * @throws {404} When friend request is not found
- * @throws {403} When user is not authorized to respond to this request
- * 
- */
+
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

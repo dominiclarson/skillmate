@@ -5,19 +5,7 @@ import pool from '@/lib/db';
 
 export const runtime = 'nodejs';
 
-/**
- * Teachers by skill endpoint
- * 
- * Retrieves all users who have a specific skill and can teach it.
- * 
- * @route GET /api/skills/teachers
- * @param req - Request object with query parameters
- * @param req.skillId - ID of the skill to find teachers for (query parameter)
- * @returns JSON array of teacher objects with id, name, email, and bio fields
- * @throws {400} When skillId parameter is missing
- * @throws {500} When teacher retrieval fails due to database error
- * 
- */
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const skillId = Number(searchParams.get('skillId') || '');

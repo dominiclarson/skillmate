@@ -6,18 +6,7 @@ import { getSession } from '@/lib/auth-utils';
 
 export const runtime = 'nodejs';             
 
-/**
- * Mark specific notification as read endpoint
- * 
- * Marks a specific notification as read for the authenticated user.
- * 
- * @route PATCH /api/notifications/[id]
- * @param req - Request object
- * @param params - Route parameters containing notification ID
- * @returns JSON response with success status
- * @throws {401} When user is not authenticated
- * @throws {500} When marking notification as read fails
- */
+
 export async function PATCH(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -44,19 +33,6 @@ export async function PATCH(
   }
 }
 
-/**
- * Dismiss specific notification endpoint
- * 
- * Dismisses (soft deletes) a specific notification for the authenticated user.
- * 
- * @route DELETE /api/notifications/[id]
- * @param req - Request object
- * @param params - Route parameters containing notification ID
- * @returns JSON response with success status
- * @throws {401} When user is not authenticated
- * @throws {500} When dismissing notification fails
- * 
- */
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

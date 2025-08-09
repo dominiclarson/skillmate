@@ -7,22 +7,7 @@ import { toMySqlDateTime } from '@/lib/schedule-utils';
 
 export const runtime = 'nodejs';
 
-/**
- * User availability management endpoint
- * 
- * Manages the authenticated user's availability time slots for scheduling sessions.
- * 
- * @route POST /api/availability
- * @param req - Request object containing availability data
- * @param req.startUtc - Start time in UTC ISO format
- * @param req.endUtc - End time in UTC ISO format  
- * @param req.tz - Timezone identifier (optional, defaults to 'UTC')
- * @returns JSON response with success status or error message
- * @throws {401} When user is not authenticated
- * @throws {400} When provided times are invalid or end time is before start time
- * @throws {500} When availability creation fails due to database error
- * 
- */
+
 export async function POST(req: Request) {
   const me = await getSession();
   if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -52,17 +37,7 @@ export async function POST(req: Request) {
   }
 }
 
-/**
- * Get user availability endpoint
- * 
- * Retrieves the authenticated user's availability time slots ordered by start time.
- * 
- * @route GET /api/availability
- * @returns JSON array of availability objects with start_utc, end_utc, and tz fields
- * @throws {401} When user is not authenticated
- * @throws {500} When availability retrieval fails due to database error
- * 
- */
+
 export async function GET() {
   const me = await getSession();
   if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
