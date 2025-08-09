@@ -1,16 +1,3 @@
-/**
- * @fileoverview HomePage component - Main landing and dashboard page for SkillMate application
- * 
- * Serves dual purposes based on authentication state:
- * - Unauthenticated users: Marketing landing page with skill search and featured categories
- * - Authenticated users: Personalized dashboard with quick actions and skill sharing opportunities
- * 
- * @component HomePage - Main page component with authentication-based rendering
- * @hook useState<boolean | null> isAuth - Authentication state (null=loading, true=authenticated, false=unauthenticated)  
- * @hook useState<string> query - Search query string for skill filtering on landing page
- * @function useEffect - Detects authentication status via /api/auth/session endpoint
- */
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -21,6 +8,33 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { allSections, Skill } from '@/lib/skills';
 
+/**
+ * Main landing and dashboard page component for the SkillMate application.
+ * 
+ * This component serves dual purposes based on user authentication state:
+ * - **Unauthenticated users**: Marketing landing page with hero section, skill search, 
+ *   featured categories, and call-to-action sections
+ * - **Authenticated users**: Personalized dashboard with welcome section, quick action cards,
+ *   and skill sharing opportunities
+ * 
+ * @component
+ * @features
+ * - **Dual Interface**: Dynamic rendering based on authentication status
+ * - **Hero Section**: Compelling landing page with search functionality
+ * - **Skill Discovery**: Featured skill categories with visual cards
+ * - **Dashboard**: Personalized quick actions for authenticated users
+ * - **Responsive Design**: Optimized layouts for all device sizes
+ * - **Loading States**: Smooth loading experience with animated spinner
+ * 
+ * @dependencies
+ * - React hooks for state management
+ * - Next.js Link for client-side navigation
+ * - Lucide React for consistent iconography
+ * - shadcn/ui components for polished interface
+ * - Skills library for category data
+ * 
+ * @returns {JSX.Element} The rendered home page with context-appropriate content
+ */
 function HomePage() {
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
   const [query, setQuery] = useState('');

@@ -5,19 +5,9 @@ import { NextResponse } from 'next/server';
 import { findUserByEmail, verifyPassword, setAuthCookie } from '@/lib/auth-utils';
 
 /**
- * Authentication login endpoint
- * 
- * Authenticates a user with email and password credentials and sets an authentication cookie.
- * 
- * @group API Endpoints
- * @route POST /api/auth/login
- * @param req - Request object containing user credentials
- * @param req.email - User's email address
- * @param req.password - User's password
- * @returns JSON response with success status or error message
- * @throws {401} When credentials are invalid or user not found
- * @throws {500} When login process fails due to server error
- * 
+ * Handles user login authentication
+ * @param req - Request object containing email and password
+ * @returns JSON response indicating success or error
  */
 export async function POST(req: Request) {
   try {

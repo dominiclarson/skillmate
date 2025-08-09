@@ -8,11 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { CalendarCheck, GraduationCap } from 'lucide-react';
 
+
 type Status =
-  | 'requested'
-  | 'accepted'
-  | 'declined'
-  | 'cancelled'
+  | 'requested'   
+  | 'accepted'   
+  | 'declined'    
+  | 'cancelled'  
   | 'completed';
 
 export type Session = {
@@ -26,6 +27,7 @@ export type Session = {
   studentName: string;
   skillName: string | null;
 };
+
 
 const badgeColor: Record<Status, 'secondary' | 'destructive' | 'success'> = {
   requested: 'secondary',
@@ -47,6 +49,27 @@ const fmt = (ts: string) => {
 };
 
 
+/**
+ * Session management page.
+ * 
+ * This component provides a interface for managing learning sessions
+ * from both teacher and student perspectives. 
+ * 
+ * @component
+ * @features
+ * - **Organized Tabs**: Pending requests, upcoming sessions, and history
+ * - **Responsive Design**: Mobile-optimized layout with adaptive components
+ * - **Quick Actions**: Direct booking links and session management tools
+ * 
+ * @dependencies
+ * - React hooks for state and effect management
+ * - Next.js router for navigation and authentication
+ * - Lucide React for consistent iconography
+ * - shadcn/ui components for tabs, cards, and badges
+ * - Custom session management utilities
+ * 
+ * @returns {JSX.Element} The rendered session management interface with tabs and controls
+ */
 export default function SessionsPage() {
   const router = useRouter();
 

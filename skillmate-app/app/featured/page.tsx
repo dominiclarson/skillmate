@@ -14,20 +14,18 @@ interface Location {
 }
 
 /**
- * Featured Skills page component that displays a comprehensive skill marketplace.
+ * Featured Skills page component that displays a skill marketplace.
  * 
  * This component serves as the main discovery page for the SkillMate platform,
- * allowing users to browse, search, and explore available skills. It includes
+ * allowing users to search skills. It includes
  * geolocation functionality for location-based matching and user authentication
  * status tracking.
  * 
  * @component
- * 
  * @features
  * - **Skill Discovery**: Browse all available skills in a responsive grid layout
- * - **Search Functionality**: Real-time search filtering with clear button
+ * - **Search Functionality**: Search filtering with clear button
  * - **Geolocation**: Automatic location detection for personalized matching
- * - **Authentication Awareness**: Shows different content based on auth status
  * - **Interactive Overview**: Detailed skill information display
  * - **Responsive Design**: Optimized for mobile, tablet, and desktop
  * 
@@ -36,7 +34,6 @@ interface Location {
  * - Next.js Link for client-side navigation
  * - Lucide React for icons
  * - Custom UI components from shadcn/ui
- * - Skills data from centralized skills library
  * 
  * @returns {JSX.Element} The rendered Featured Skills page
  */

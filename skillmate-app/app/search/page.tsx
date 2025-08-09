@@ -18,7 +18,31 @@ interface Location {
   longitude: number;
 }
 
-export default function Page() {
+/**
+ * Advanced skill search and discovery page.
+ * 
+ * This component provides a search interface with sidebar navigation,
+ * skill filtering, and geolocation-based matching. Users can explore skills by
+ * category.
+ * 
+ * @component
+ * @features
+ * - **Sidebar Navigation**: Interactive skill category browser
+ * - **URL-based State**: Skill selection persisted in URL parameters
+ * - **Geolocation Integration**: Location-based teacher discovery
+ * - **Responsive Layout**: Sidebar toggle for mobile optimization
+ * - **Skill Overview**: Detailed information display for selected skills
+
+ * @dependencies
+ * - Next.js router for navigation and URL management
+ * - AppSidebar component for skill category navigation
+ * - SkillOverview component for detailed skill information
+ * - shadcn/ui sidebar components for layout
+ * - Skills library for category data and utilities
+ * 
+ * @returns {JSX.Element} The rendered search interface with sidebar and content
+ */
+export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeSection, setActiveSection] = useState(findFirstSection());
