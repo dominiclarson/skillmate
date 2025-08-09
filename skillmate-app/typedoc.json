@@ -1,0 +1,65 @@
+{
+  "name": "SkillMate App Documentation",
+  "entryPoints": [
+    "app/**/*.tsx",
+    "app/**/*.ts",
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "readme": "README.md",
+  "tsconfig": "tsconfig.json",
+  "exclude": [
+    "node_modules/**/*",
+    "tests/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.test.jsx", 
+    "**/__tests__/**/*",
+    "cypress/**/*",
+    "*.config.*",
+    "jest.setup.ts"
+  ],
+  "excludeExternals": true,
+  "includeVersion": true,
+  "searchInComments": true,
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": false,
+    "invalidLink": false,
+    "notDocumented": false
+  },
+  "commentStyle": "jsdoc",
+  "blockTags": [
+    "@param",
+    "@returns", 
+    "@example",
+    "@remarks",
+    "@see",
+    "@route",
+    "@throws",
+    "@warning",
+    "@group"
+  ],
+  "categorizeByGroup": true,
+  "defaultCategory": "Other",
+  "groupOrder": [
+    "API Endpoints",
+    "Components", 
+    "Pages",
+    "Utilities",
+    "Types",
+    "*"
+  ],
+  "categoryOrder": [
+    "Components",
+    "Pages",
+    "Utils",
+    "Types",
+    "*",
+    "Other"
+  ],
+  "skipErrorChecking": true,
+  "compilerOptions": {
+    "skipLibCheck": true
+  }
+}

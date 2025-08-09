@@ -31,6 +31,7 @@ export default function NavBar() {
         {!isAuth && <NavButton href="/signup" label="Sign Up" />}
         {isAuth && <NavButton href="/profile" label="Profile" />}
         {isAuth && <NavButton href="/chat" label="Chat" />}
+        <NavButton href="/docs" label="Docs" />
         {isAuth && (
           <button
             onClick={handleLogout}

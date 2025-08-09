@@ -5,6 +5,20 @@ import { getSession } from '@/lib/auth-utils';
 import pool from '@/lib/db';
 import { notify } from '@/lib/schedule-utils';
 
+/**
+ * Send friend request endpoint
+ * 
+ * Sends a friend request from the authenticated user to another user.
+ * 
+ * @route POST /api/friends/request
+ * @param req - Request object containing friend request data
+ * @param req.receiverId - User ID of the person to send friend request to
+ * @returns JSON response with success status and request details
+ * @throws {401} When user is not authenticated
+ * @throws {400} When receiverId is invalid or user tries to friend themselves
+ * @throws {404} When target user is not found
+ * 
+ */
 export async function POST(req: Request) {
   const me = await getSession();
   if (!me)

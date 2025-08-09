@@ -8,6 +8,16 @@ export interface Skill {
 
 }
 
+/**
+ * Skills retrieval endpoint
+ * 
+ * Retrieves all available skills from the database.
+ * 
+ * @route GET /api/skills
+ * @returns JSON array of skill objects with id, name, description, and emoji fields
+ * @throws {500} When skills retrieval fails due to database error
+ * 
+ */
 export async function GET() {
   try {
     const [rows] = await pool.query('SELECT * FROM skill');

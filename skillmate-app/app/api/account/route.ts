@@ -6,8 +6,17 @@ import { getSession, clearAuthCookie } from '@/lib/auth-utils';
 
 export const runtime = 'nodejs';            
 
-
-
+/**
+ * Account deletion endpoint
+ * 
+ * Deletes the authenticated user's account and all associated data
+ * 
+ * @route DELETE /api/account
+ * @returns JSON response with success status or error message
+ * @throws {401} When user is not authenticated
+ * @throws {500} When account deletion fails due to database error
+ * 
+ */
 export async function DELETE() {
   const me = await getSession();
   if (!me)

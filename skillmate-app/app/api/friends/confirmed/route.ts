@@ -6,6 +6,17 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth-utils';
 import pool from '@/lib/db';
 
+/**
+ * Confirmed friends endpoint
+ * 
+ * Retrieves all confirmed/accepted friends for the authenticated user.
+ * 
+ * @route GET /api/friends/confirmed
+ * @returns JSON array of friend objects with id, name, and email fields
+ * @throws {401} When user is not authenticated
+ * @throws {500} When confirmed friends retrieval fails due to database error
+ * 
+ */
 export async function GET() {
   const session = await getSession();
 

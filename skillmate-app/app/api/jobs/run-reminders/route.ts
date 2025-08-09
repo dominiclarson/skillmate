@@ -5,7 +5,17 @@ import pool from '@/lib/db';
 
 export const runtime = 'nodejs';
 
-
+/**
+ * Session reminder processing job endpoint
+ * 
+ * Background job that processes pending session reminders (24h and 1h before sessions)
+ * and converts them into user notifications. Intended to be called by scheduled tasks.
+ * 
+ * @route GET /api/jobs/run-reminders
+ * @returns JSON response with number of reminders processed
+ * @throws {500} When reminder processing fails due to database error
+ * 
+ */
 export async function GET() {
   try {
     const [rows] = await pool.execute(

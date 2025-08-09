@@ -6,7 +6,16 @@ import { getSession } from '@/lib/auth-utils';
 
 export const runtime = 'nodejs';
 
-
+/**
+ * User notifications endpoint
+ * 
+ * Retrieves all unread/undismissed notifications for the authenticated user.
+ * 
+ * @route GET /api/notifications
+ * @returns JSON array of notification objects ordered by creation date
+ * @throws {401} When user is not authenticated
+ * 
+ */
 export async function GET() {
   const me = await getSession();
   if (!me)
@@ -27,9 +36,17 @@ export async function GET() {
   });
 }
 
-
- 
- export async function PATCH() {
+/**
+ * Mark all notifications as read endpoint
+ * 
+ * Marks all unread notifications for the authenticated user as read.
+ * 
+ * @route PATCH /api/notifications
+ * @returns JSON response with success status
+ * @throws {401} When user is not authenticated
+ * 
+ */
+export async function PATCH() {
   const me = await getSession();
    if (!me)
    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

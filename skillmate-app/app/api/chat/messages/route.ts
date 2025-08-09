@@ -6,6 +6,20 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { getSession } from '@/lib/auth-utils';
 
+/**
+ * Chat messages retrieval endpoint
+ * 
+ * Retrieves message history between the authenticated user and a specified user.
+ * 
+ * @route GET /api/chat/messages
+ * @param req - Request object with query parameters
+ * @param req.userId - Target user ID to retrieve chat messages with (query parameter)
+ * @returns JSON array of message objects ordered by creation date
+ * @throws {401} When user is not authenticated
+ * @throws {400} When userId parameter is missing
+ * @throws {500} When message retrieval fails due to database error
+ * 
+ */
 export async function GET(req: Request) {
   const session = await getSession();
   if (!session) {

@@ -7,6 +7,17 @@ import { notify, toMySqlDateTime } from '@/lib/schedule-utils';
 
 export const runtime = 'nodejs'; 
 
+/**
+ * User sessions retrieval endpoint
+ * 
+ * Retrieves sessions for the authenticated user filtered by their role (teacher, student, or all).
+ * 
+ * @route GET /api/sessions
+ * @param req - Request object with optional query parameters
+ * @param req.role - Filter by user role: 'teacher', 'student', 'all', or null for all (query parameter)
+ * @returns JSON array of session objects with teacher/student names and skill information
+ * @throws {401} When user is not authenticated
+ */
 export async function GET(req: Request) {
   const me = await getSession();
   if (!me)
@@ -34,7 +45,22 @@ export async function GET(req: Request) {
   return NextResponse.json(rows);
 }
 
-
+/**
+ * Session request creation endpoint
+ * 
+ * Creates a new session request from a student to a teacher.
+ * 
+ * @route POST /api/sessions
+ * @param req - Request object containing session request data
+ * @param req.teacherId - ID of the teacher to request session with
+ * @param req.skillId - ID of the skill for the session (optional)
+ * @param req.startUtc - Session start time in UTC format
+ * @param req.durationMins - Session duration in minutes (default: 60)
+ * @param req.notes - Additional notes for the session (default: empty)
+ * @returns JSON response with created session ID
+ * @throws {401} When user is not authenticated
+ * @throws {400} When required parameters are missing or invalid
+ */
 export async function POST(req: Request) {
   const me = await getSession();
   if (!me)

@@ -7,6 +7,21 @@ import { createSessionReminders } from '@/lib/schedule-utils';
 
 export const runtime = 'nodejs'; 
 
+/**
+ * Session status update endpoint
+ * 
+ * Allows users to accept, decline, or cancel a session request.
+ * 
+ * @route PATCH /api/sessions/[id]
+ * @param req - Request object containing action to perform
+ * @param req.action - Action to perform: 'accept', 'decline', or 'cancel'
+ * @param params - Route parameters containing session ID
+ * @returns JSON response with success status
+ * @throws {401} When user is not authenticated
+ * @throws {400} When session ID is invalid
+ * @throws {500} When session update fails
+ * 
+ */
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
