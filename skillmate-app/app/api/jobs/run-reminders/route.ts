@@ -5,7 +5,10 @@ import pool from '@/lib/db';
 
 export const runtime = 'nodejs';
 
-
+/**
+ * Processes pending session reminders and sends notifications
+ * @returns JSON response with number of processed reminders
+ */
 export async function GET() {
   try {
     const [rows] = await pool.execute(

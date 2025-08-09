@@ -4,6 +4,11 @@
 import { NextResponse } from 'next/server';
 import { findUserByEmail, verifyPassword, setAuthCookie } from '@/lib/auth-utils';
 
+/**
+ * Handles user login authentication
+ * @param req - Request object containing email and password
+ * @returns JSON response indicating success or error
+ */
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();

@@ -7,7 +7,11 @@ import { toMySqlDateTime } from '@/lib/schedule-utils';
 
 export const runtime = 'nodejs';
 
-
+/**
+ * Creates a new availability slot for the current user
+ * @param req - Request object containing startUtc, endUtc, and tz
+ * @returns JSON response indicating success or error
+ */
 export async function POST(req: Request) {
   const me = await getSession();
   if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -37,7 +41,10 @@ export async function POST(req: Request) {
   }
 }
 
-
+/**
+ * Retrieves all availability slots for the current user
+ * @returns JSON response with availability data
+ */
 export async function GET() {
   const me = await getSession();
   if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

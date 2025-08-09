@@ -2,18 +2,43 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Frame, User, MessageCircle, ArrowRight, Star, Users, Zap } from 'lucide-react';
+import { Search, Frame, User, MessageCircle, ArrowRight, Star, Zap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { allSections, Skill } from '@/lib/skills';
 
-export default function HomePage() {
+/**
+ * Main landing and dashboard page component for the SkillMate application.
+ * 
+ * This component serves dual purposes based on user authentication state:
+ * - **Unauthenticated users**: Marketing landing page with hero section, skill search, 
+ *   featured categories, and call-to-action sections
+ * - **Authenticated users**: Personalized dashboard with welcome section, quick action cards,
+ *   and skill sharing opportunities
+ * 
+ * @component
+ * @features
+ * - **Dual Interface**: Dynamic rendering based on authentication status
+ * - **Hero Section**: Compelling landing page with search functionality
+ * - **Skill Discovery**: Featured skill categories with visual cards
+ * - **Dashboard**: Personalized quick actions for authenticated users
+ * - **Responsive Design**: Optimized layouts for all device sizes
+ * - **Loading States**: Smooth loading experience with animated spinner
+ * 
+ * @dependencies
+ * - React hooks for state management
+ * - Next.js Link for client-side navigation
+ * - Lucide React for consistent iconography
+ * - shadcn/ui components for polished interface
+ * - Skills library for category data
+ * 
+ * @returns {JSX.Element} The rendered home page with context-appropriate content
+ */
+function HomePage() {
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
   const [query, setQuery] = useState('');
 
-  
   useEffect(() => {
     fetch('/api/auth/session')
       .then(res => {
@@ -23,7 +48,6 @@ export default function HomePage() {
       .catch(() => setIsAuth(false));
   }, []);
 
- 
   if (isAuth === null) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-muted to-secondary">
@@ -35,7 +59,6 @@ export default function HomePage() {
     );
   }
 
-  //  logged out
   if (!isAuth) {
     const featured = allSections.slice(0, 6);
     const filtered = featured.filter(s =>
@@ -175,7 +198,6 @@ export default function HomePage() {
     );
   }
 
-  // Authenticated dashboard
   return (
     <div className="flex flex-col min-h-screen">
       {/* Main dashboard */}
@@ -279,3 +301,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+export default HomePage;

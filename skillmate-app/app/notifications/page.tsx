@@ -1,10 +1,9 @@
-
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash, Check } from 'lucide-react';
+
 
 type Notif = {
   id: number;
@@ -14,10 +13,12 @@ type Notif = {
   read_at: string | null;
 };
 
+
 const safeParse = async (res: Response) => {
   const ct = res.headers.get('content-type') || '';
   return ct.includes('application/json') ? res.json() : res.text();
 };
+
 
 const fmt = (ts: string) => {
   const d = ts.includes('T')
@@ -31,6 +32,25 @@ const fmt = (ts: string) => {
         timeStyle: 'short',   
       });
 };
+/**
+ * Comprehensive notifications management page.
+ * 
+ * This component provides a notification center.
+ * 
+ * @component
+ * @features
+ * - **Notification Management**: View notifications
+ * - **Interactive Responses**: Accept/reject friend requests directly from notifications
+ * - **Responsive Design**: Optimized layout for all device sizes
+ * 
+ * @dependencies
+ * - React hooks for state and effect management
+ * - Lucide React for consistent iconography
+ * - shadcn/ui Button component for actions
+ * - Custom API endpoints for notification operations
+ * 
+ * @returns {JSX.Element} The rendered notifications management interface
+ */
 export default function NotificationsPage() {
   const [items, setItems] = useState<Notif[]>([]);
   const [loading, setLoading] = useState(false);

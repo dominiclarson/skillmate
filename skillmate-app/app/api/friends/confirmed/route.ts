@@ -6,6 +6,10 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth-utils';
 import pool from '@/lib/db';
 
+/**
+ * Retrieves confirmed friends for the current user
+ * @returns JSON response with confirmed friends data
+ */
 export async function GET() {
   const session = await getSession();
 

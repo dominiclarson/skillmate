@@ -7,11 +7,13 @@ import { SendHorizonal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
+
 interface Friend {
   id: number;
   name: string;
   email: string;
 }
+
 
 interface Message {
   id: number;
@@ -21,6 +23,27 @@ interface Message {
   timestamp: string;
 }
 
+/**
+ * Chat interface component.
+ * 
+ * This component provides a messaging system that allows authenticated
+ * users to communicate with their confirmed friends and connections. It features
+ * a two-pane interface with a friend list sidebar and an active chat window.
+ * 
+ * @component
+ * @features
+ * - **Messaging**: Send and receive messages with confirmed connections
+ * - **Friend Management**: View and select from confirmed friends
+ * - **Message History**: Load and display conversation history
+ * 
+ * @dependencies
+ * - React hooks for state and effect management
+ * - Lucide React for consistent iconography
+ * - shadcn/ui components for polished interface
+ * - Custom API endpoints for chat functionality
+ * 
+ * @returns {JSX.Element} The rendered chat interface with friend list and messaging
+ */
 export default function ChatPage() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);

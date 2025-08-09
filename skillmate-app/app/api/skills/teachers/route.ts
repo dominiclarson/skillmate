@@ -5,7 +5,11 @@ import pool from '@/lib/db';
 
 export const runtime = 'nodejs';
 
-
+/**
+ * Retrieves teachers who have a specific skill
+ * @param req - Request object with skillId query parameter
+ * @returns JSON response with teachers data
+ */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const skillId = Number(searchParams.get('skillId') || '');

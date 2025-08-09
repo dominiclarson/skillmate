@@ -1,7 +1,4 @@
-
-
-
-   'use client';
+'use client';
 
 import { useRouter } from 'next/navigation';
 import QuickScheduleDialog from '@/components/QuickScheduleDialog';

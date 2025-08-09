@@ -9,6 +9,29 @@ import { Badge } from '@/components/ui/badge';
 import { skills, Skill } from '@/lib/skills';
 import { AppSidebar } from '@/components/app-sidebar';
 
+/**
+ * Skill posting and service creation page.
+ * 
+ * This component allows authenticated users to create and publish skill-based
+ * service offerings with descriptions, pricing, and skill selection.
+ * 
+ * @component
+ * @features
+ * - **Skill Selection**: Browse and search through available skill categories
+ * - **Service Creation**: Form for service descriptions and pricing
+ * - **Visual Skill Browser**: Interactive grid with emojis and descriptions
+ * - **Form Validation**: Ensure required fields are completed
+ * - **Responsive Layout**: Sidebar navigation with main content area
+
+ * @dependencies
+ * - React hooks for state and effect management
+ * - Next.js router for navigation and authentication
+ * - shadcn/ui components for consistent interface
+ * - AppSidebar component for navigation
+ * - Skills library for available skill categories
+ * 
+ * @returns {JSX.Element} The rendered skill posting interface with form and navigation
+ */
 export default function PostRequestPage() {
   const router = useRouter();
   const pathname = usePathname();

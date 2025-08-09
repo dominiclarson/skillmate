@@ -5,6 +5,11 @@
 import { NextResponse } from 'next/server';
 import { createUser, setAuthCookie } from '@/lib/auth-utils';
 
+/**
+ * Handles user registration
+ * @param req - Request object containing firstName, lastName, email, and password
+ * @returns JSON response indicating success or error
+ */
 export async function POST(req: Request) {
   try {
     const { firstName, lastName, email, password } = await req.json();
