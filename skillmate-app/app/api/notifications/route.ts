@@ -6,7 +6,10 @@ import { getSession } from '@/lib/auth-utils';
 
 export const runtime = 'nodejs';
 
-
+/**
+ * Retrieves notifications for the current user
+ * @returns JSON response with user notifications
+ */
 export async function GET() {
   const me = await getSession();
   if (!me)
@@ -27,7 +30,10 @@ export async function GET() {
   });
 }
 
-
+/**
+ * Marks all notifications as read for the current user
+ * @returns JSON response indicating success
+ */
 export async function PATCH() {
   const me = await getSession();
    if (!me)

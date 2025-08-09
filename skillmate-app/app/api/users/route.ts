@@ -5,7 +5,10 @@ import { getSession } from '@/lib/auth-utils';
 import pool from '@/lib/db';
 import { NextResponse } from 'next/server';
 
-
+/**
+ * Retrieves all users except the current user
+ * @returns JSON response with users data
+ */
 export async function GET() {
   try {
     const session = await getSession();

@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db"
 import { getSession } from '@/lib/auth-utils';
 
-
+/**
+ * Updates the current user's location coordinates
+ * @param req - Request object containing latitude and longitude
+ * @returns JSON response indicating success or error
+ */
 export async function POST(req: NextRequest) {
   try {
     const session = await getSession();

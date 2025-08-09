@@ -4,6 +4,10 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth-utils';
 import pool from '@/lib/db';
 
+/**
+ * Retrieves the current user's profile information
+ * @returns JSON response with profile data and skills
+ */
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -30,7 +34,11 @@ export async function GET() {
 
 }
 
-
+/**
+ * Updates the current user's profile information
+ * @param req - Request object containing name, bio, skillsW, and skillsH
+ * @returns JSON response indicating success or error
+ */
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

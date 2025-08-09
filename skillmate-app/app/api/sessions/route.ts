@@ -7,7 +7,11 @@ import { notify, toMySqlDateTime } from '@/lib/schedule-utils';
 
 export const runtime = 'nodejs'; 
 
-
+/**
+ * Retrieves sessions for the current user with optional role filtering
+ * @param req - Request object with optional role query parameter
+ * @returns JSON response with session data
+ */
 export async function GET(req: Request) {
   const me = await getSession();
   if (!me)
@@ -35,6 +39,11 @@ export async function GET(req: Request) {
   return NextResponse.json(rows);
 }
 
+/**
+ * Creates a new session request
+ * @param req - Request object containing teacherId, skillId, startUtc, durationMins, notes
+ * @returns JSON response with session id or error
+ */
 export async function POST(req: Request) {
   const me = await getSession();
   if (!me)
