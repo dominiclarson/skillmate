@@ -11,20 +11,18 @@ import {
 import useSocket from '@/lib/useSocket';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
+import { SendHorizonal } from 'lucide-react';
 
 interface Friend {
   id: number;
   name: string;
   email: string;
 }
-
-
-interface Message {
-  id: number;
-  content: string;
+interface Msg {
+  id?: number;
   sender_id: number;
   receiver_id: number;
+  content: string;
   ts: number;          
   failed?: boolean;    
 }
@@ -50,8 +48,11 @@ interface Message {
  * 
  * @returns {JSX.Element} The rendered chat interface with friend list and messaging
  */
+const room = (a: number, b: number) => [a, b].sort().join('-');
+
+/* main component */
 export default function ChatPage() {
- 
+
   const [me, setMe]           = useState<number | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [sel, setSel]         = useState<Friend | null>(null);
@@ -61,7 +62,7 @@ export default function ChatPage() {
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  /* session + friends */
+  /*session + friends */
   useEffect(() => {
     fetch('/api/auth/session')
       .then((r) => r.json())
@@ -73,7 +74,7 @@ export default function ChatPage() {
       .catch(() => {});
   }, []);
 
-  /*load history */
+  /* ───── load history when friend changes ─── */
   useEffect(() => {
     if (!sel) return;
     fetch(`/api/chat/messages?userId=${sel.id}`)
@@ -82,7 +83,7 @@ export default function ChatPage() {
       .catch(() => setMsgs([]));
   }, [sel]);
 
-  /*socket setup */
+  /* socket setup  */
   const r = sel && me ? room(me, sel.id) : 'noop';
   const { send } = useSocket<any>(r, (payload) => {
     if (payload.type === 'msg') {
@@ -93,12 +94,12 @@ export default function ChatPage() {
     }
   });
 
-  /* scroll on new msgs  */
+  /*  auto scroll  */
   useLayoutEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [msgs, typingFromFriend]);
 
-  /* ───── send helpers  */
+  /*  send helpers */
   const emitTyping = useCallback(() => {
     if (sel) send({ type: 'typing' });
   }, [sel, send]);
@@ -115,10 +116,10 @@ export default function ChatPage() {
     setMsgs((p) => [...p, optimistic]);
     setText('');
 
-    /* websocket broadcast */
+    /* websocket */
     send({ type: 'msg', data: optimistic });
 
-    
+     
     fetch('/api/chat/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
