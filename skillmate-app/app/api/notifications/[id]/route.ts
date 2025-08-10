@@ -6,6 +6,12 @@ import { getSession } from '@/lib/auth-utils';
 
 export const runtime = 'nodejs';             
 
+/**
+ * Marks a specific notification as read
+ * @param _req - Request object (unused)
+ * @param params - Route parameters containing notification id
+ * @returns JSON response indicating success or error
+ */
 export async function PATCH(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -32,6 +38,12 @@ export async function PATCH(
   }
 }
 
+/**
+ * Dismisses a specific notification
+ * @param _req - Request object (unused)
+ * @param params - Route parameters containing notification id
+ * @returns JSON response indicating success or error
+ */
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

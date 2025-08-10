@@ -6,6 +6,10 @@ import { getSession } from '@/lib/auth-utils';
 import pool from '@/lib/db';
 import { notify } from '@/lib/schedule-utils';
 
+/**
+ * Retrieves incoming friend requests for the current user
+ * @returns JSON response with incoming friend requests
+ */
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -21,6 +25,11 @@ export async function GET() {
   return NextResponse.json(rows);
 }
 
+/**
+ * Accepts or rejects an incoming friend request
+ * @param req - Request object containing requestId and accepted status
+ * @returns JSON response indicating success or error
+ */
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

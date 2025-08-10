@@ -5,6 +5,11 @@ import { getSession } from '@/lib/auth-utils';
 import pool from '@/lib/db';
 import { notify } from '@/lib/schedule-utils';
 
+/**
+ * Sends a friend request to specified user
+ * @param req - Request object containing receiverId
+ * @returns JSON response indicating success or error
+ */
 export async function POST(req: Request) {
   const me = await getSession();
   if (!me)

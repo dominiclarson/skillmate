@@ -1,16 +1,42 @@
-
-
 'use client';
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { skills, Skill } from '@/lib/skills';
-import { CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { X, Search } from 'lucide-react';
 import { SkillOverview } from '@/components/skill-overview';
-import { AppSidebar } from '@/components/app-sidebar';
 
+
+interface Location {
+  latitude: number;
+  longitude: number;
+}
+
+/**
+ * Featured Skills page component that displays a skill marketplace.
+ * 
+ * This component serves as the main discovery page for the SkillMate platform,
+ * allowing users to search skills. It includes
+ * geolocation functionality for location-based matching and user authentication
+ * status tracking.
+ * 
+ * @component
+ * @features
+ * - **Skill Discovery**: Browse all available skills in a responsive grid layout
+ * - **Search Functionality**: Search filtering with clear button
+ * - **Geolocation**: Automatic location detection for personalized matching
+ * - **Interactive Overview**: Detailed skill information display
+ * - **Responsive Design**: Optimized for mobile, tablet, and desktop
+ * 
+ * @dependencies
+ * - React hooks for state management
+ * - Next.js Link for client-side navigation
+ * - Lucide React for icons
+ * - Custom UI components from shadcn/ui
+ * 
+ * @returns {JSX.Element} The rendered Featured Skills page
+ */
 export default function FeaturedPage() {
   const [isAuth, setIsAuth] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,10 +48,6 @@ export default function FeaturedPage() {
     timeout: 5000,
     maximumAge: 0,
   }
-  interface Location {
-  latitude: number;
-  longitude: number;
-}
 
   useEffect(() => {
     fetch('/api/auth/session')

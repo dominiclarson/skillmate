@@ -6,6 +6,11 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { getSession } from '@/lib/auth-utils';
 
+/**
+ * Retrieves messages between current user and specified user
+ * @param req - Request object with userId query parameter
+ * @returns JSON response with messages
+ */
 export async function GET(req: Request) {
   const session = await getSession();
   if (!session) {

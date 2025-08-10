@@ -1,6 +1,3 @@
- 
-
- 
 'use client';
 
 import { useState } from 'react';
@@ -15,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from 'react-toastify';
 import Link from 'next/link';
 
+
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName:  z.string().min(1,  'Last name is required'),
@@ -22,6 +20,32 @@ const formSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
+/**
+ * User registration and account creation page.
+ * 
+ * This component provides a secure registration interface with
+ * form validation, error handling, and toast notifications. It uses React Hook
+ * Form with Zod validation to ensure data integrity and provides immediate
+ * user feedback throughout the registration process.
+ * 
+ * @component
+ * @features
+ * - **Registration**: First name, last name, email, and password
+ * - **Form Validation**: Validation using Zod schema
+ * - **Error Handling**: Detailed error states and user feedback
+ * - **Toast Notifications**: Success and error messages via react-toastify
+ * - **Loading States**: Visual feedback during account creation process
+ * - **Navigation Integration**: Automatic redirect with callback URL support
+ *
+ * @dependencies
+ * - React Hook Form for comprehensive form management
+ * - Zod for input validation and TypeScript integration
+ * - Next.js router for navigation and callback handling
+ * - shadcn/ui components for consistent interface design
+ * - react-toastify for user notification system
+ * 
+ * @returns {JSX.Element} The rendered registration form with validation and feedback
+ */
 export default function SignupPage() {
   const router = useRouter();
   const params = useSearchParams();

@@ -15,6 +15,31 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
+/**
+ * Comprehensive user profile management page.
+ * 
+ * This component provides a full-featured profile interface where users can
+ * manage their personal information, skills, and social connections. It includes
+ * profile editing, skill selection, friend management, and connection requests
+ * in a unified.
+ * 
+ * @component
+ * @features
+ * - **Profile Management**: Edit name, bio, and contact information
+ * - **Skill Selection**: Choose skills you have and skills you want to learn
+ * - **Friend System**: Send, accept, and reject friend requests
+ * - **Connection Management**: View confirmed friends and pending requests
+ * - **Responsive Design**: Optimized for desktop and mobile interfaces
+ * 
+ * @dependencies
+ * - React hooks for state and effect management
+ * - Lucide React for consistent iconography
+ * - react-toastify for user feedback notifications
+ * - shadcn/ui components for polished interface
+ * - Skills library for skill category management
+ * 
+ * @returns {JSX.Element} The rendered profile management interface
+ */
 export default function ProfilePage() {
   const [profile, setProfile] = useState({ name: '', bio: '', email: '' ,selectedSkillsW:'' ,selectedSkillsH:''});
   const [editing, setEditing] = useState(false);

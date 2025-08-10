@@ -7,6 +7,12 @@ import { createSessionReminders } from '@/lib/schedule-utils';
 
 export const runtime = 'nodejs'; 
 
+/**
+ * Updates a session status (accept, decline, cancel)
+ * @param req - Request object containing action
+ * @param params - Route parameters containing session id
+ * @returns JSON response indicating success or error
+ */
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }

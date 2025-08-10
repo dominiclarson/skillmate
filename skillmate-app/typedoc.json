@@ -1,0 +1,70 @@
+{
+  "name": "SkillMate App Documentation",
+  "entryPoints": [
+    "app/**/*.tsx",
+    "app/**/*.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "readme": "README.md",
+  "tsconfig": "tsconfig.json",
+  "exclude": [
+    "node_modules/**/*",
+    "tests/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.test.jsx", 
+    "**/__tests__/**/*",
+    "cypress/**/*",
+    "*.config.*",
+    "jest.setup.ts"
+  ],
+  "excludeExternals": true,
+  "includeVersion": true,
+  "searchInComments": true,
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": false,
+    "invalidLink": false,
+    "notDocumented": false
+  },
+  "commentStyle": "jsdoc",
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Project",
+    "Module",
+    "Namespace",
+    "Enum",
+    "EnumMember",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Constructor",
+    "Property",
+    "Variable",
+    "Function",
+    "Accessor",
+    "Method",
+    "Parameter",
+    "TypeParameter",
+    "TypeLiteral",
+    "CallSignature",
+    "ConstructorSignature",
+    "IndexSignature",
+    "GetSignature",
+    "SetSignature"
+  ],
+  "navigationLinks": {
+    "SkillMate": "/"
+  },
+  "sidebarLinks": {
+    "GitHub": "https://github.com/skillmate/skillmate-app"
+  },
+  "hideGenerator": false,
+  "cacheBust": false,
+  "cleanOutputDir": true,
+  "skipErrorChecking": true,
+  "compilerOptions": {
+    "skipLibCheck": true
+  }
+}

@@ -1,63 +1,95 @@
+'use client';
 
 
    'use client';
 
-   import { useEffect, useState } from 'react';
-   import { Badge } from '@/components/ui/badge';
-import router from 'next/router';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
-import { CheckCircle, Clock, Loader2, XCircle } from 'lucide-react';
-import { CardHeader, CardContent } from '@/components/ui/card';
-import { Card, Button } from '@radix-ui/themes';
-   
-   
-   type Status =
-     | 'requested'
-     | 'accepted'
-     | 'declined'
-     | 'cancelled'
-     | 'completed';
-   
-   interface Session {
-    
-     id: number;
-     teacher_id: number;
-     student_id: number;
-     teacherName: string;
-     studentName: string;
-     start_utc: string;
-     end_utc: string;
-     status: Status;
-   }
-   
-   const colour: Record<Status, 'secondary' | 'success' | 'destructive'> = {
-     requested: 'secondary',
-     accepted: 'success',
-     declined: 'destructive',
-     cancelled: 'destructive',
-     completed: 'secondary',
-   };
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { CalendarCheck, GraduationCap } from 'lucide-react';
 
-   const fmt = (ts: string) =>
-     new Date(ts.replace(' ', 'T') + 'Z').toLocaleString(undefined, {
-       dateStyle: 'short',
-       timeStyle: 'short',
-     });
-   
-  
-   export default function SessionsPage() {
-     const [sessions, setSessions] = useState<Session[]>([]);
-     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-     const [role, setRole] = useState<'all' | 'teacher' | 'student'>('all');
-     const [loading, setLoading] = useState(true);
-   
-     useEffect(() => {
-       fetch('/api/auth/session')
-         .then((r) => r.json())
-         .then((d) => setCurrentUserId(d?.session?.id ?? null))
-         .catch(() => {});
-     }, []);
-   
+
+type Status =
+  | 'requested'   
+  | 'accepted'   
+  | 'declined'    
+  | 'cancelled'  
+  | 'completed';
+
+export type Session = {
+  id: number;
+  teacher_id: number;
+  student_id: number;
+  start_utc: string;
+  end_utc: string;
+  status: Status;
+  teacherName: string;
+  studentName: string;
+  skillName: string | null;
+};
+
+
+const badgeColor: Record<Status, 'secondary' | 'destructive' | 'success'> = {
+  requested: 'secondary',
+  accepted: 'success',
+  declined: 'destructive',
+  cancelled: 'destructive',
+  completed: 'secondary',
+};
+
+
+const fmt = (ts: string) => {
+  const d = ts.includes('T')
+    ? new Date(ts)
+    : new Date(ts.replace(' ', 'T') + 'Z');
+  return d.toLocaleString(undefined, {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  });
+};
+
+
+/**
+ * Session management page.
+ * 
+ * This component provides a interface for managing learning sessions
+ * from both teacher and student perspectives. 
+ * 
+ * @component
+ * @features
+ * - **Organized Tabs**: Pending requests, upcoming sessions, and history
+ * - **Responsive Design**: Mobile-optimized layout with adaptive components
+ * - **Quick Actions**: Direct booking links and session management tools
+ * 
+ * @dependencies
+ * - React hooks for state and effect management
+ * - Next.js router for navigation and authentication
+ * - Lucide React for consistent iconography
+ * - shadcn/ui components for tabs, cards, and badges
+ * - Custom session management utilities
+ * 
+ * @returns {JSX.Element} The rendered session management interface with tabs and controls
+ */
+export default function SessionsPage() {
+  const router = useRouter();
+
+
+  const [role, setRole] = useState<'all' | 'teacher' | 'student'>('all');
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+
+ 
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then((r) => r.json())
+      .then((d) => setCurrentUserId(d?.session?.id ?? null))
+      .catch(() => {});
+  }, []);
+
   
   useEffect(() => {
     const load = async () => {

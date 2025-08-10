@@ -6,8 +6,10 @@ import { getSession, clearAuthCookie } from '@/lib/auth-utils';
 
 export const runtime = 'nodejs';            
 
-
-
+/**
+ * Deletes the current user's account and all associated data
+ * @returns JSON response indicating success or error
+ */
 export async function DELETE() {
   const me = await getSession();
   if (!me)

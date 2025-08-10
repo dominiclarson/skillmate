@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -12,11 +13,37 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from 'react-toastify';
 import Link from 'next/link';
 
+
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
 });
 
+/**
+ * User authentication login page component.
+ * 
+ * This component provides a login interface with form validation,
+ * error handling, and toast notifications. It uses React Hook Form with
+ * Zod validation to ensure data integrity and provide immediate user feedback.
+ * 
+ * @component
+ * @features
+ * - **Form Validation**: Real-time validation using Zod schema
+ * - **Error Handling**: Comprehensive error states and user feedback
+ * - **Toast Notifications**: Success and error messages via react-toastify
+ * - **Loading States**: Visual feedback during authentication process
+ * - **Navigation Integration**: Automatic redirect after successful login
+ * - **Responsive Design**: responsive card layout
+
+ * @dependencies
+ * - React Hook Form for form management
+ * - Zod for input validation and TypeScript integration
+ * - Next.js router for navigation
+ * - shadcn/ui components for consistent interface
+ * - react-toastify for user notifications
+ * 
+ * @returns {JSX.Element} The rendered login form with validation and feedback
+ */
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
