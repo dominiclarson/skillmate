@@ -64,7 +64,7 @@ export default function SkillTeachersPage() {
   }, [skillId]);
 
      return (
-    <main className="max-w-4xl mx-auto p-6 space-y-6">
+    <main className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-3">
         {skill?.emoji && <span className="text-3xl">{skill.emoji}</span>}
         <h1 className="text-3xl font-bold">{skill?.name || `Skill #${skillId}`}</h1>
