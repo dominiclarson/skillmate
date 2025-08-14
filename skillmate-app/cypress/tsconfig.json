@@ -1,14 +1,15 @@
 {
-    "extends": "../tsconfig.json",
-    "compilerOptions": {
-      "types": ["cypress"]
-    },
-   "include": [
-    "next-env.d.ts",
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["ES2021", "DOM"],
+    "types": ["cypress", "@testing-library/cypress"],
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": [
     "**/*.ts",
     "**/*.tsx",
-    "__tests__/**/*"
-  ],
-    "exclude": ["node_modules", "cypress"]
-  }
-  
+    "support/e2e.ts",
+    "support/commands.d.ts"
+  ]
+}
