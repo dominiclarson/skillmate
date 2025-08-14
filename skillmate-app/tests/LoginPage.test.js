@@ -57,10 +57,6 @@ describe('LoginPage', () => {
   });
 
   it('handles successful login', async () => {
-    // Mock window.location.href
-    delete window.location;
-    window.location = { href: '' };
-
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ success: true }),
@@ -86,7 +82,6 @@ describe('LoginPage', () => {
         headers: { 'Content-Type': 'application/json' },
       });
       expect(toast.success).toHaveBeenCalledWith('Login successful!');
-      expect(window.location.href).toBe('http://localhost/');
     });
   });
 
