@@ -22,12 +22,7 @@ describe('auth-utils', () => {
       .mockResolvedValueOnce([{ insertId: 1 }] as any)
       .mockResolvedValueOnce([[{ id: 1, email: 'brian@goat.com', password: 'hashedpassword' }]] as any);
     
-    const user = await createUser({
-      firstName: 'Brian',
-      lastName: 'Goat',
-      email: 'brian@goat.com',
-      password: 'secret123'
-    });
+    const user = await createUser('brian@goat.com', 'secret123');
     expect(user.email).toBe('brian@goat.com');
     expect(user.id).toBe(1);
     
@@ -42,12 +37,7 @@ describe('auth-utils', () => {
     mockBcrypt.hash.mockResolvedValue('hashedmypw');
     mockPool.execute.mockResolvedValue([{ insertId: 1 }] as any);
     
-    await createUser({
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'x@y.com',
-      password: plain
-    });
+    await createUser('x@y.com', plain);
     expect(mockBcrypt.hash).toHaveBeenCalledWith(plain, 10);
     
     const match = await verifyPassword(plain, 'hashedmypw');
@@ -61,11 +51,6 @@ describe('auth-utils', () => {
   it('handles user creation when email already exists', async () => {
     mockPool.execute.mockRejectedValue(new Error('Duplicate entry'));
     
-    await expect(createUser({
-      firstName: 'Dup',
-      lastName: 'User',
-      email: 'dup@dup.com',
-      password: 'pw'
-    })).rejects.toThrow('Duplicate entry');
+    await expect(createUser('dup@dup.com', 'pw')).rejects.toThrow('Duplicate entry');
   });
 });

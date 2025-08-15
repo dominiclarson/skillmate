@@ -1,24 +1,54 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+
+   'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type Role = 'all' | 'teacher' | 'student';
+type Status =
+  | 'requested'   
+  | 'accepted'   
+  | 'declined'    
+  | 'cancelled'  
+  | 'completed';
 
-type Session = {
+export type Session = {
   id: number;
   teacher_id: number;
   student_id: number;
-  teacher_name: string;
-  student_name: string;
-  start_utc: string; 
-  end_utc: string;  
-  status: 'requested' | 'accepted' | 'declined' | 'cancelled' | 'completed';
-  notes?: string | null;
+  start_utc: string;
+  end_utc: string;
+  status: Status;
+  teacherName: string;
+  studentName: string;
+  skillName: string | null;
+};
+
+
+const badgeColor: Record<Status, 'secondary' | 'destructive' | 'success'> = {
+  requested: 'secondary',
+  accepted: 'success',
+  declined: 'destructive',
+  cancelled: 'destructive',
+  completed: 'secondary',
+};
+
+
+const fmt = (ts: string) => {
+  const d = ts.includes('T')
+    ? new Date(ts)
+    : new Date(ts.replace(' ', 'T') + 'Z');
+  return d.toLocaleString(undefined, {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  });
 };
 
 
@@ -87,87 +117,81 @@ function fmtRangeUTC(startUtc: string | Date, endUtc: string | Date) {
 }
 
 export default function SessionsPage() {
-  const [role, setRole] = useState<Role>('all');
+  const router = useRouter();
+
+
+  const [role, setRole] = useState<'all' | 'teacher' | 'student'>('all');
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
-  const [highlightId, setHighlightId] = useState<number | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Load sessions by role
-  const load = async (r: Role) => {
-    setLoading(true);
-    setErr(null);
-    try {
-      const qs = r === 'all' ? '' : `?role=${r}`;
-      const res = await fetch(`/api/sessions${qs}`, { cache: 'no-store' });
-      if (!res.ok) {
-        const j = await res.json().catch(() => null);
-        setErr(j?.error || `Error ${res.status}`);
-        setSessions([]);
-        return;
-      }
-      const data = await res.json().catch(() => []);
-      setSessions(Array.isArray(data) ? data : []);
-    } catch (e: any) {
-      setErr(e?.message || 'Failed to load');
-      setSessions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+ 
   useEffect(() => {
-    load(role);
-   
-  }, [role]);
+    fetch('/api/auth/session')
+      .then((r) => r.json())
+      .then((d) => setCurrentUserId(d?.session?.id ?? null))
+      .catch(() => {});
+  }, []);
 
   
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const url = new URL(window.location.href);
-    const n = url.searchParams.get('new');
-    if (n) {
-      setHighlightId(Number(n));
-      
-      url.searchParams.delete('new');
-      window.history.replaceState({}, '', url.toString());
-    }
-  }, []);
-
-  const grouped = useMemo(() => {
-    return {
-      requested: sessions.filter(s => s.status === 'requested'),
-      upcoming: sessions.filter(s => s.status === 'accepted'),
-      past: sessions.filter(s => ['declined', 'cancelled', 'completed'].includes(s.status)),
+    const load = async () => {
+      setLoading(true);
+      const qs = role === 'all' ? '' : `?role=${role}`;
+      const res = await fetch(`/api/sessions${qs}`, { cache: 'no-store' });
+      if (res.status === 401) {
+        router.push('/login?callbackUrl=/sessions');
+        return;
+      }
+      let data: unknown = [];
+try {
+  
+  const text = await res.text();
+  data = text ? JSON.parse(text) : [];
+} catch {
+  data = [];
+}
++setSessions(Array.isArray(data) ? (data as Session[]) : []);
+      setLoading(false);
     };
-  }, [sessions]);
+    load();
+  }, [role, router]);
 
-  // Actions
-  const act = async (id: number, action: 'accept' | 'decline' | 'cancel' | 'complete') => {
-    const res = await fetch(`/api/sessions/${id}`, {
+  /* helper for patching status */
+  const patch = async (
+    id: number,
+    action: 'accept' | 'decline' | 'cancel'
+  ) => {
+    await fetch(`/api/sessions/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action }),
     });
-    if (!res.ok) {
-      const j = await res.json().catch(() => null);
-      alert(j?.error || 'Action failed');
-      return;
-    }
-    await load(role);
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              status:
+                action === 'accept'
+                  ? 'accepted'
+                  : action === 'decline'
+                  ? 'declined'
+                  : 'cancelled',
+            }
+          : s
+      )
+    );
   };
 
-  const del = async (id: number) => {
-    if (!confirm('Delete this session?')) return;
-    const res = await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-      const j = await res.json().catch(() => null);
-      alert(j?.error || 'Delete failed');
-      return;
-    }
-    await load(role);
-  };
+  /* splits */
+  const pending = sessions.filter((s) => s.status === 'requested');
+  const upcoming = sessions.filter((s) => s.status === 'accepted');
+  const history = sessions.filter(
+    (s) => s.status !== 'requested' && s.status !== 'accepted'
+  );
 
+  /* ---------------------------------------------------------------- */
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

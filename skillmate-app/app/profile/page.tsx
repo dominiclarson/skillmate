@@ -362,39 +362,10 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ))}
-          </div>
-        )}
-      </div>
-
-      <hr className="my-8 border-t" />
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 p-4 rounded">
-        <h3 className="font-bold text-red-700 dark:text-red-300 mb-2">
-          Delete Account
-        </h3>
-        <p className="text-sm text-red-600 dark:text-red-400 mb-4">
-          Deleting your account is irreversible. 
-        </p>
-        <button
-          onClick={async () => {
-            if (!confirm(
-              'This will permanently delete your account.'
-            ))
-              return;
-
-            const res = await fetch('/api/account', { method: 'DELETE' });
-            if (res.ok) {
-              alert('Account deleted. Goodbye!');
-              window.location.href = '/';
-            } else {
-              alert('Failed to delete account.');
-            }
-          } }
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-        >
-          Delete my account
-        </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 }

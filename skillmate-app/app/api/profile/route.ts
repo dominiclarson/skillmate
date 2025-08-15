@@ -15,7 +15,9 @@ export async function GET() {
   const [rows] = await pool.execute(
       `SELECT id,
               email,
-              name,
+              first_name   AS firstName,
+              last_name    AS lastName,
+              CONCAT_WS(' ', first_name, last_name) AS name,
               bio
          FROM Users
         WHERE id = ?`,
