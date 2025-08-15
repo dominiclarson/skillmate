@@ -52,27 +52,35 @@ function statusBadgeColor(s: Session['status']) {
   }
 }
 
-function fmtRangeUTC(startUtc: string, endUtc: string) {
 
-  const s = new Date(startUtc + 'Z');
-  const e = new Date(endUtc + 'Z');
+function toDateFromDb(v: string | Date | null | undefined) {
+  if (!v) return null;
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
 
-  const left = s.toLocaleString(undefined, {
-    month: 'numeric',
-    day: 'numeric',
-    year: '2-digit',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  }).replace(':00', ''); 
+  const s = String(v).trim();
+  // If it's already ISO or has timezone info, trust Date to parse it
+  if (s.endsWith('Z') || s.includes('T') || /[+\-]\d{2}:?\d{2}$/.test(s)) {
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  // MySQL DATETIME "YYYY-MM-DD HH:MM:SS" (no TZ) → treat as UTC
+  const d = new Date(s.replace(' ', 'T') + 'Z');
+  return isNaN(d.getTime()) ? null : d;
+}
 
-  const right = e.toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  }).replace(':00', '');
+function fmtRangeUTC(startUtc: string | Date, endUtc: string | Date) {
+  const s = toDateFromDb(startUtc);
+  const e = toDateFromDb(endUtc);
+  if (!s || !e) return '—';
 
-  return `${left} → ${right}`;
+  const dateFmt: Intl.DateTimeFormatOptions = { month: 'numeric', day: 'numeric', year: '2-digit' };
+  const timeFmt: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+
+  const sDate = s.toLocaleDateString(undefined, dateFmt);
+  const sTime = s.toLocaleTimeString(undefined, timeFmt).replace(':00', ''); // drop :00
+  const eTime = e.toLocaleTimeString(undefined, timeFmt).replace(':00', '');
+
+  return `${sDate}, ${sTime} → ${eTime}`;
 }
 
 export default function SessionsPage() {
