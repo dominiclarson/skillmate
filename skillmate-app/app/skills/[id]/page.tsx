@@ -3,6 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import QuickScheduleDialog from '@/components/QuickScheduleDialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
 
 
 type Teacher = {
@@ -127,61 +132,76 @@ useEffect(() => {
 },[skillId]);
 
      return (
-    <main className="max-w-4xl mx-auto p-6 space-y-6">
+    <main className="container mx-auto p-6 space-y-8">
       <div className="flex items-center gap-3">
         {skill?.emoji && <span className="text-3xl">{skill.emoji}</span>}
         <h1 className="text-3xl font-bold">{skill?.name || `Skill #${skillId}`}</h1>
       </div>
       {skill?.description && <p className="text-muted-foreground">{skill.description}</p>}
-      <div className="flex items-center gap-2">
-      <label className="text-sm font-medium">ZIP</label>
-      <input
-        type="text"
-        inputMode="numeric"
-        maxLength={5}
-        value={zip}
-        onChange={(e) => setZip(e.target.value)}
-        className="border rounded p-2 w-24"
-        placeholder="e.g. 02108"
-      />
-      <button
-        onClick={saveZip}
-        className="bg-blue-600 text-white rounded px-3 py-2"
-      >
-        Use ZIP
-      </button>
-      {status && <span className="text-sm ml-2">{status}</span>}
-    </div>
+      
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Location Settings</h2>
+          <p className="text-sm text-muted-foreground mb-4">Set your ZIP code to find nearby teachers</p>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="zip">ZIP Code</Label>
+            <Input
+              id="zip"
+              type="text"
+              inputMode="numeric"
+              maxLength={5}
+              value={zip}
+              onChange={(e) => setZip(e.target.value)}
+              className="w-24"
+              placeholder="e.g. 02108"
+            />
+            <Button onClick={saveZip}>
+              Use ZIP
+            </Button>
+          </div>
+          {status && <Badge variant="secondary" className="mt-2">{status}</Badge>}
+        </div>
+      </div>
 
-      <h2 className="text-xl font-semibold mt-6">Teachers</h2>
-        <div style={{ width: "300px", margin: "20px auto", textAlign: "center" }}>
-      <h3>Search Radius: {distance} miles</h3>
-      <input
-        type="range"
-        min="1"
-        max="100"
-        step="1"
-        value={distance}
-        onChange={(e) => setDistance(Number(e.target.value))}
-        style={{ width: "100%" }}
-      />
-    </div>
-         {teachers.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No teachers yet for this skill.</p>
-         ) : (
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {teachers.map(t => (
-            <li key={t.id} className="border rounded-lg p-4 flex flex-col gap-2">
-              <div className="font-semibold">{t.name || t.email}</div>
-              {t.bio && <div className="text-sm text-muted-foreground line-clamp-3">{t.bio}</div>}
-              <div className="flex justify-end">
-                <QuickScheduleDialog teacher={t} />
-              </div>
-               </li>
-             ))}
-           </ul>
-         )}
-       </main>
-     );
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Search Radius</h2>
+          <p className="text-sm text-muted-foreground mb-4">Adjust the search radius to find teachers within {distance} miles</p>
+          <Slider
+            value={[distance]}
+            onValueChange={(value) => setDistance(value[0])}
+            max={100}
+            min={1}
+            step={1}
+            className="w-full max-w-md"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Available Teachers</h2>
+          <p className="text-sm text-muted-foreground mb-4">Teachers offering this skill in your area</p>
+          {teachers.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No teachers yet for this skill.</p>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2">
+              {teachers.map(t => (
+                <div key={t.id} className="border rounded-lg p-4 space-y-3">
+                  <div>
+                    <h3 className="text-lg font-semibold">{t.name || t.email}</h3>
+                    {t.bio && <p className="text-sm text-muted-foreground line-clamp-3 mt-1">{t.bio}</p>}
+                  </div>
+                  <div className="flex justify-end">
+                    <QuickScheduleDialog teacher={t} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
    }
    
