@@ -47,6 +47,9 @@ describe("SignInPage", () => {
     expect(
       screen.getByText("Sign up to join SkillMate community")
     ).toBeInTheDocument();
+    expect(screen.getByLabelText("First name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Last name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Email address")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign Up" })).toBeInTheDocument();
     expect(screen.getByText("Already have an account?")).toBeInTheDocument();
@@ -56,6 +59,8 @@ describe("SignInPage", () => {
   it("has correct input placeholders", () => {
     render(<SignupPage />);
 
+    expect(screen.getByPlaceholderText("joe")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("doe")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("you@example.com")).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText("At least 6 characters")
@@ -69,10 +74,14 @@ describe("SignInPage", () => {
     });
     render(<SignupPage />);
 
+    const firstNameInput = screen.getByLabelText("First name");
+    const lastNameInput = screen.getByLabelText("Last name");
     const emailInput = screen.getByLabelText("Email address");
     const passwordInput = screen.getByLabelText("Password");
     const submitButton = screen.getByRole("button", { name: "Sign Up" });
 
+    fireEvent.change(firstNameInput, { target: { value: "Test" } });
+    fireEvent.change(lastNameInput, { target: { value: "User" } });
     fireEvent.change(emailInput, {
       target: { value: "testnewuser1@gmail.com" },
     });
@@ -83,6 +92,8 @@ describe("SignInPage", () => {
       expect(fetch).toHaveBeenCalledWith("/api/auth/register", {
         method: "POST",
         body: JSON.stringify({
+          firstName: "Test",
+          lastName: "User",
           email: "testnewuser1@gmail.com",
           password: "testtest",
         }),
@@ -99,10 +110,14 @@ describe("SignInPage", () => {
     });
     render(<SignupPage />);
 
+    const firstNameInput = screen.getByLabelText("First name");
+    const lastNameInput = screen.getByLabelText("Last name");
     const emailInput = screen.getByLabelText("Email address");
     const passwordInput = screen.getByLabelText("Password");
     const submitButton = screen.getByRole("button", { name: "Sign Up" });
 
+    fireEvent.change(firstNameInput, { target: { value: "Test" } });
+    fireEvent.change(lastNameInput, { target: { value: "User" } });
     fireEvent.change(emailInput, {
       target: { value: "testnewuser@gmail.com" },
     });

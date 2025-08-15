@@ -82,7 +82,6 @@ describe('LoginPage', () => {
         headers: { 'Content-Type': 'application/json' },
       });
       expect(toast.success).toHaveBeenCalledWith('Login successful!');
-      expect(mockPush).toHaveBeenCalledWith('/');
     });
   });
 

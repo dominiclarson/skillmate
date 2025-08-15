@@ -1,54 +1,21 @@
 'use client';
 
-
-   'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { CalendarCheck, GraduationCap } from 'lucide-react';
 
+type Role = 'all' | 'teacher' | 'student';
 
-type Status =
-  | 'requested'   
-  | 'accepted'   
-  | 'declined'    
-  | 'cancelled'  
-  | 'completed';
-
-export type Session = {
+type Session = {
   id: number;
   teacher_id: number;
   student_id: number;
-  start_utc: string;
-  end_utc: string;
-  status: Status;
-  teacherName: string;
-  studentName: string;
-  skillName: string | null;
-};
-
-
-const badgeColor: Record<Status, 'secondary' | 'destructive' | 'success'> = {
-  requested: 'secondary',
-  accepted: 'success',
-  declined: 'destructive',
-  cancelled: 'destructive',
-  completed: 'secondary',
-};
-
-
-const fmt = (ts: string) => {
-  const d = ts.includes('T')
-    ? new Date(ts)
-    : new Date(ts.replace(' ', 'T') + 'Z');
-  return d.toLocaleString(undefined, {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  });
+  teacher_name: string;
+  student_name: string;
+  start_utc: string; 
+  end_utc: string;  
+  status: 'requested' | 'accepted' | 'declined' | 'cancelled' | 'completed';
+  notes?: string | null;
 };
 
 
@@ -73,236 +40,342 @@ const fmt = (ts: string) => {
  * 
  * @returns {JSX.Element} The rendered session management interface with tabs and controls
  */
+
+function statusBadgeColor(s: Session['status']) {
+  switch (s) {
+    case 'requested': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
+    case 'accepted':  return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300';
+    case 'declined':  return 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300';
+    case 'cancelled': return 'bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200';
+    case 'completed': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+    default:          return 'bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200';
+  }
+}
+
+
+function toDateFromDb(v: string | Date | null | undefined) {
+  if (!v) return null;
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+
+  const s = String(v).trim();
+  // If it's already ISO or has timezone info, trust Date to parse it
+  if (s.endsWith('Z') || s.includes('T') || /[+\-]\d{2}:?\d{2}$/.test(s)) {
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  // MySQL DATETIME "YYYY-MM-DD HH:MM:SS" (no TZ) → treat as UTC
+  const d = new Date(s.replace(' ', 'T') + 'Z');
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function fmtRangeUTC(startUtc: string | Date, endUtc: string | Date) {
+  const s = toDateFromDb(startUtc);
+  const e = toDateFromDb(endUtc);
+  if (!s || !e) return '—';
+
+  const dateFmt: Intl.DateTimeFormatOptions = { month: 'numeric', day: 'numeric', year: '2-digit' };
+  const timeFmt: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+
+  const sDate = s.toLocaleDateString(undefined, dateFmt);
+  const sTime = s.toLocaleTimeString(undefined, timeFmt).replace(':00', ''); // drop :00
+  const eTime = e.toLocaleTimeString(undefined, timeFmt).replace(':00', '');
+
+  return `${sDate}, ${sTime} → ${eTime}`;
+}
+
 export default function SessionsPage() {
-  const router = useRouter();
-
-
-  const [role, setRole] = useState<'all' | 'teacher' | 'student'>('all');
+  const [role, setRole] = useState<Role>('all');
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
+  const [highlightId, setHighlightId] = useState<number | null>(null);
 
- 
-  useEffect(() => {
-    fetch('/api/auth/session')
-      .then((r) => r.json())
-      .then((d) => setCurrentUserId(d?.session?.id ?? null))
-      .catch(() => {});
-  }, []);
-
-  
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      const qs = role === 'all' ? '' : `?role=${role}`;
+  // Load sessions by role
+  const load = async (r: Role) => {
+    setLoading(true);
+    setErr(null);
+    try {
+      const qs = r === 'all' ? '' : `?role=${r}`;
       const res = await fetch(`/api/sessions${qs}`, { cache: 'no-store' });
-      if (res.status === 401) {
-        router.push('/login?callbackUrl=/sessions');
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        setErr(j?.error || `Error ${res.status}`);
+        setSessions([]);
         return;
       }
-      let data: unknown = [];
-try {
-  
-  const text = await res.text();
-  data = text ? JSON.parse(text) : [];
-} catch {
-  data = [];
-}
-+setSessions(Array.isArray(data) ? (data as Session[]) : []);
+      const data = await res.json().catch(() => []);
+      setSessions(Array.isArray(data) ? data : []);
+    } catch (e: any) {
+      setErr(e?.message || 'Failed to load');
+      setSessions([]);
+    } finally {
       setLoading(false);
-    };
-    load();
-  }, [role, router]);
+    }
+  };
 
-  /* helper for patching status */
-  const patch = async (
-    id: number,
-    action: 'accept' | 'decline' | 'cancel'
-  ) => {
-    await fetch(`/api/sessions/${id}`, {
+  useEffect(() => {
+    load(role);
+   
+  }, [role]);
+
+  
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    const n = url.searchParams.get('new');
+    if (n) {
+      setHighlightId(Number(n));
+      
+      url.searchParams.delete('new');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
+
+  const grouped = useMemo(() => {
+    return {
+      requested: sessions.filter(s => s.status === 'requested'),
+      upcoming: sessions.filter(s => s.status === 'accepted'),
+      past: sessions.filter(s => ['declined', 'cancelled', 'completed'].includes(s.status)),
+    };
+  }, [sessions]);
+
+  // Actions
+  const act = async (id: number, action: 'accept' | 'decline' | 'cancel' | 'complete') => {
+    const res = await fetch(`/api/sessions/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action }),
     });
-    setSessions((prev) =>
-      prev.map((s) =>
-        s.id === id
-          ? {
-              ...s,
-              status:
-                action === 'accept'
-                  ? 'accepted'
-                  : action === 'decline'
-                  ? 'declined'
-                  : 'cancelled',
-            }
-          : s
-      )
-    );
+    if (!res.ok) {
+      const j = await res.json().catch(() => null);
+      alert(j?.error || 'Action failed');
+      return;
+    }
+    await load(role);
   };
 
-  /* splits */
-  const pending = sessions.filter((s) => s.status === 'requested');
-  const upcoming = sessions.filter((s) => s.status === 'accepted');
-  const history = sessions.filter(
-    (s) => s.status !== 'requested' && s.status !== 'accepted'
-  );
+  const del = async (id: number) => {
+    if (!confirm('Delete this session?')) return;
+    const res = await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const j = await res.json().catch(() => null);
+      alert(j?.error || 'Delete failed');
+      return;
+    }
+    await load(role);
+  };
 
-  /* ---------------------------------------------------------------- */
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="space-y-6 sm:space-y-8">
-        <header className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:justify-between">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
-              <CalendarCheck className="w-6 h-6 text-primary" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Lessons
-              </h1>
-              <p className="text-muted-foreground text-sm sm:text-base">Manage your skill sessions</p>
-            </div>
+    <div className="mx-auto max-w-6xl px-4 py-6">
+      {}
+      <div className="sticky top-0 z-10 -mx-4 mb-4 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 border-b">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl sm:text-3xl font-bold">Your Sessions</h1>
+          <div
+            role="tablist"
+            aria-label="Filter by role"
+            className="inline-flex rounded-lg border overflow-hidden"
+          >
+            {(['all', 'teacher', 'student'] as Role[]).map((r) => (
+              <button
+                key={r}
+                role="tab"
+                aria-selected={role === r}
+                onClick={() => setRole(r)}
+                className={`px-3 sm:px-4 py-2 text-sm capitalize transition
+                  ${role === r
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-background hover:bg-accent text-foreground'}`}
+              >
+                {r === 'all' ? 'All' : r === 'teacher' ? 'As Teacher' : 'As Student'}
+              </button>
+            ))}
           </div>
-          <Button asChild className="w-full sm:w-auto" variant="default" size="default">
-            <a href="/featured" className="flex items-center justify-center gap-2">
-              <GraduationCap size={16} />
-              <span className="sm:inline">Book a lesson</span>
-            </a>
-          </Button>
-        </header>
+        </div>
+      </div>
 
-        <div className="flex flex-wrap gap-2">
-          {(['all', 'student', 'teacher'] as const).map((r) => (
-            <Button
-              key={r}
-              variant={role === r ? 'default' : 'secondary'}
-              size="sm"
-              className=""
-              onClick={() => setRole(r)}
-            >
-              {r === 'all' ? 'All Sessions' : r === 'student' ? 'As Student' : 'As Teacher'}
-            </Button>
+      {/* Loading*/}
+      {loading && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="border rounded-xl p-4 animate-pulse">
+              <div className="h-4 w-1/3 bg-muted rounded mb-3" />
+              <div className="h-3 w-2/3 bg-muted rounded mb-2" />
+              <div className="h-3 w-1/2 bg-muted rounded" />
+            </div>
           ))}
         </div>
+      )}
 
-        <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="pending" className="flex items-center gap-1 px-2 sm:px-4">
-              <span className="truncate">Pending</span> 
-              <Badge variant="secondary" className="text-xs">{pending.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="upcoming" className="flex items-center gap-1 px-2 sm:px-4">
-              <span className="truncate">Upcoming</span> 
-              <Badge variant="secondary" className="text-xs">{upcoming.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-1 px-2 sm:px-4">
-              <span className="truncate">History</span> 
-              <Badge variant="secondary" className="text-xs">{history.length}</Badge>
-            </TabsTrigger>
-          </TabsList>
+      {err && !loading && (
+        <div className="rounded-lg border border-rose-300 bg-rose-50 dark:border-rose-900/40 dark:bg-rose-900/10 p-4 text-rose-700 dark:text-rose-300">
+          {err}
+        </div>
+      )}
 
-          <TabsContent value="pending" className="space-y-4">
-            {pending.length === 0 ? (
-              <div className="text-center py-12">
-                <CalendarCheck className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No pending requests</p>
-                <p className="text-sm text-muted-foreground mt-1">New session requests will appear here</p>
-              </div>
-            ) : (
-              pending.map((s) => (
-                <Card key={s.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between pb-3">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-semibold text-base sm:text-lg truncate">Session #{s.id}</span>
-                    </div>
-                    <Badge variant={badgeColor[s.status]} className="capitalize self-start">{s.status}</Badge>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-start gap-2 text-muted-foreground">
-                      <CalendarCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span className="font-medium text-sm break-all">{fmt(s.start_utc)} → {fmt(s.end_utc)}</span>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Button size="sm" variant="default" onClick={() => patch(s.id, 'accept')} className="flex-1">Accept</Button>
-                      <Button size="sm" variant="destructive" onClick={() => patch(s.id, 'decline')} className="flex-1">Decline</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </TabsContent>
+      {!loading && !err && (
+        <div className="space-y-10">
+          <Section
+            title="Requests"
+            empty="No requests."
+            items={grouped.requested}
+            highlightId={highlightId}
+            onAccept={(id) => act(id, 'accept')}
+            onDecline={(id) => act(id, 'decline')}
+            onCancel={(id) => act(id, 'cancel')}
+            onComplete={(id) => act(id, 'complete')}
+            onDelete={del}
+          />
 
-          <TabsContent value="upcoming" className="space-y-4">
-            {upcoming.length === 0 ? (
-              <div className="text-center py-12">
-                <GraduationCap className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No upcoming lessons</p>
-                <p className="text-sm text-muted-foreground mt-1">Accepted sessions will appear here</p>
-              </div>
-            ) : (
-              upcoming.map((s) => (
-                <Card key={s.id} className="hover:shadow-md transition-shadow border-l-4 border-l-green-500">
-                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between pb-3">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-semibold text-base sm:text-lg truncate">Session #{s.id}</span>
-                    </div>
-                    <Badge variant={badgeColor[s.status]} className="capitalize self-start">{s.status}</Badge>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-start gap-2 text-muted-foreground">
-                      <CalendarCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span className="font-medium text-sm break-all">{fmt(s.start_utc)} → {fmt(s.end_utc)}</span>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                      onClick={() => patch(s.id, 'cancel')}
-                    >
-                      Cancel Session
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </TabsContent>
+          <Section
+            title="Upcoming"
+            empty="No upcoming sessions."
+            items={grouped.upcoming}
+            highlightId={highlightId}
+            onAccept={(id) => act(id, 'accept')}
+            onDecline={(id) => act(id, 'decline')}
+            onCancel={(id) => act(id, 'cancel')}
+            onComplete={(id) => act(id, 'complete')}
+            onDelete={del}
+          />
 
-          <TabsContent value="history" className="space-y-4">
-            {history.length === 0 ? (
-              <div className="text-center py-12">
-                <CalendarCheck className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No session history</p>
-                <p className="text-sm text-muted-foreground mt-1">Completed and cancelled sessions will appear here</p>
-              </div>
-            ) : (
-              history.map((s) => (
-                <Card key={s.id} className="opacity-80 hover:opacity-100 transition-opacity">
-                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between pb-3">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-semibold text-base sm:text-lg truncate">Session #{s.id}</span>
-                    </div>
-                    <Badge variant={badgeColor[s.status]} className="capitalize self-start">{s.status}</Badge>
-                  </CardHeader>
-                  <CardContent className="">
-                    <div className="flex items-start gap-2 text-muted-foreground">
-                      <CalendarCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm break-all">{fmt(s.start_utc)} → {fmt(s.end_utc)}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </TabsContent>
-        </Tabs>
+          <Section
+            title="History"
+            empty="No past sessions."
+            items={grouped.past}
+            highlightId={highlightId}
+            onAccept={(id) => act(id, 'accept')}
+            onDecline={(id) => act(id, 'decline')}
+            onCancel={(id) => act(id, 'cancel')}
+            onComplete={(id) => act(id, 'complete')}
+            onDelete={del}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 
-        {loading && (
-          <div className="flex items-center justify-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <span className="ml-2 text-sm text-muted-foreground">Refreshing...</span>
+function Section(props: {
+  title: string;
+  empty: string;
+  items: Session[];
+  highlightId: number | null;
+  onAccept: (id: number) => void;
+  onDecline: (id: number) => void;
+  onCancel: (id: number) => void;
+  onComplete: (id: number) => void;
+  onDelete: (id: number) => void;
+}) {
+  const { title, empty, items } = props;
+
+  return (
+    <section>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg sm:text-xl font-semibold">{title}</h2>
+        <span className="text-xs sm:text-sm text-muted-foreground">{items.length} total</span>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="rounded-lg border p-6 text-muted-foreground">{empty}</div>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((s) => (
+            <li key={s.id}>
+              <CardSession
+                s={s}
+                highlight={props.highlightId === s.id}
+                onAccept={() => props.onAccept(s.id)}
+                onDecline={() => props.onDecline(s.id)}
+                onCancel={() => props.onCancel(s.id)}
+                onComplete={() => props.onComplete(s.id)}
+                onDelete={() => props.onDelete(s.id)}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function CardSession({
+  s,
+  highlight,
+  onAccept,
+  onDecline,
+  onCancel,
+  onComplete,
+  onDelete,
+}: {
+  s: Session;
+  highlight?: boolean;
+  onAccept: () => void;
+  onDecline: () => void;
+  onCancel: () => void;
+  onComplete: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div
+      className={`rounded-xl border p-4 h-full flex flex-col gap-3 transition-shadow ${
+        highlight ? 'ring-2 ring-primary shadow-md' : 'hover:shadow-sm'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="font-medium truncate">
+            Teacher: <span className="font-semibold">{s.teacher_name}</span>
           </div>
+          <div className="font-medium truncate">
+            Student: <span className="font-semibold">{s.student_name}</span>
+          </div>
+        </div>
+        <Badge className={`${statusBadgeColor(s.status)} whitespace-nowrap`} variant={undefined}>
+          {s.status}
+        </Badge>
+      </div>
+
+      <div className="text-sm text-muted-foreground">
+        {fmtRangeUTC(s.start_utc, s.end_utc)}
+      </div>
+
+      {s.notes && (
+        <div className="text-sm bg-muted/50 rounded-md px-3 py-2">
+          <span className="font-medium">Notes:</span> {s.notes}
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="mt-auto flex flex-wrap gap-2 pt-2">
+        {s.status === 'requested' && (
+          <>
+            <Button onClick={onAccept} className="flex-1 sm:flex-none" variant={undefined} size={undefined}>
+              Accept
+            </Button>
+            <Button variant="outline" onClick={onDecline} className="flex-1 sm:flex-none" size={undefined}>
+              Decline
+            </Button>
+          </>
+        )}
+
+        {s.status === 'accepted' && (
+          <>
+            <Button variant="outline" onClick={onCancel} className="flex-1 sm:flex-none" size={undefined}>
+              Cancel
+            </Button>
+            <Button onClick={onComplete} className="flex-1 sm:flex-none" variant={undefined} size={undefined}>
+              Mark Complete
+            </Button>
+          </>
+        )}
+
+        {['declined', 'cancelled', 'completed'].includes(s.status) && (
+          <Button variant="destructive" onClick={onDelete} className="flex-1 sm:flex-none" size={undefined}>
+            Delete
+          </Button>
         )}
       </div>
-    </main>
+    </div>
   );
 }
