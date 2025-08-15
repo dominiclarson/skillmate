@@ -227,7 +227,7 @@ export default function SessionsPage() {
       {loading && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i}>
+            <Card className="" key={i}>
               <CardContent className="p-4">
                 <Skeleton className="h-4 w-1/3 mb-3" />
                 <Skeleton className="h-3 w-2/3 mb-2" />
@@ -322,7 +322,7 @@ function Section(props: {
 
   if (items.length === 0) {
     return (
-      <Card>
+      <Card className="">
         <CardContent className="p-6 text-center text-muted-foreground">
           {empty}
         </CardContent>
@@ -397,10 +397,10 @@ function CardSession({
         <div className="flex flex-wrap gap-2">
           {s.status === 'requested' && (
             <>
-              <Button onClick={onAccept} className="flex-1 sm:flex-none">
+              <Button variant="default" size="default" onClick={onAccept} className="flex-1 sm:flex-none">
                 Accept
               </Button>
-              <Button variant="outline" onClick={onDecline} className="flex-1 sm:flex-none">
+              <Button variant="outline" size="default" onClick={onDecline} className="flex-1 sm:flex-none">
                 Decline
               </Button>
             </>
@@ -408,17 +408,17 @@ function CardSession({
 
           {s.status === 'accepted' && (
             <>
-              <Button variant="outline" onClick={onCancel} className="flex-1 sm:flex-none">
+              <Button variant="outline" size="default" onClick={onCancel} className="flex-1 sm:flex-none">
                 Cancel
               </Button>
-              <Button onClick={onComplete} className="flex-1 sm:flex-none">
+              <Button onClick={onComplete} className="flex-1 sm:flex-none" size="default" variant="default">
                 Mark Complete
               </Button>
             </>
           )}
 
           {['declined', 'cancelled', 'completed'].includes(s.status) && (
-            <Button variant="destructive" onClick={onDelete} className="flex-1 sm:flex-none">
+            <Button variant="destructive" size="default" onClick={onDelete} className="flex-1 sm:flex-none">
               Delete
             </Button>
           )}

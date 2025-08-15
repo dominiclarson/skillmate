@@ -144,7 +144,7 @@ useEffect(() => {
           <h2 className="text-xl font-semibold mb-2">Location Settings</h2>
           <p className="text-sm text-muted-foreground mb-4">Set your ZIP code to find nearby teachers</p>
           <div className="flex items-center gap-2">
-            <Label htmlFor="zip">ZIP Code</Label>
+            <Label className="" htmlFor="zip">ZIP Code</Label>
             <Input
               id="zip"
               type="text"
@@ -155,7 +155,7 @@ useEffect(() => {
               className="w-24"
               placeholder="e.g. 02108"
             />
-            <Button onClick={saveZip}>
+            <Button className="" variant="default" size="default" onClick={saveZip}>
               Use ZIP
             </Button>
           </div>
@@ -169,6 +169,7 @@ useEffect(() => {
           <p className="text-sm text-muted-foreground mb-4">Adjust the search radius to find teachers within {distance} miles</p>
           <Slider
             value={[distance]}
+            defaultValue={[distance]}
             onValueChange={(value) => setDistance(value[0])}
             max={100}
             min={1}

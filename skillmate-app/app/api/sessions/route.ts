@@ -21,7 +21,7 @@ export async function GET(req: Request) {
   const role = url.searchParams.get('role'); 
 
   let whereClause = '';
-  let params = [];
+  let params: any[] = [];
   
   if (role === 'teacher') {
     whereClause = 'WHERE s.teacher_id = ?';
