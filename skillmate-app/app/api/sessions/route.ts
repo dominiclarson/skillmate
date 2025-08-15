@@ -20,6 +20,21 @@ export async function GET(req: Request) {
   const url  = new URL(req.url);
   const role = url.searchParams.get('role'); 
 
+  let whereClause = '';
+  let params: any[] = [];
+  
+  if (role === 'teacher') {
+    whereClause = 'WHERE s.teacher_id = ?';
+    params = [me.id];
+  } else if (role === 'student') {
+    whereClause = 'WHERE s.student_id = ?';
+    params = [me.id];
+  } else {
+    // role === 'all' or null - show all sessions where user is either teacher or student
+    whereClause = 'WHERE (s.teacher_id = ? OR s.student_id = ?)';
+    params = [me.id, me.id];
+  }
+
   const [rows] = await pool.execute(
     `SELECT s.*,
             CONCAT_WS(' ', t.first_name, t.last_name) AS teacherName,
@@ -29,11 +44,10 @@ export async function GET(req: Request) {
        JOIN Users t  ON t.id  = s.teacher_id
        JOIN Users st ON st.id = s.student_id
        LEFT JOIN Skill sk ON sk.id = s.skill_id
-      WHERE ( (s.teacher_id = ? AND ? IN ('teacher', 'all', NULL)) OR
-              (s.student_id = ? AND ? IN ('student', 'all', NULL)) )
+      ${whereClause}
       ORDER BY s.start_utc DESC
       LIMIT 50`,
-    [me.id, role, me.id, role]
+    params
   );
 
   return NextResponse.json(rows);
