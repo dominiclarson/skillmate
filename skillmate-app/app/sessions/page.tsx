@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Role = 'all' | 'teacher' | 'student';
 
@@ -41,14 +44,14 @@ type Session = {
  * @returns {JSX.Element} The rendered session management interface with tabs and controls
  */
 
-function statusBadgeColor(s: Session['status']) {
+function statusBadgeVariant(s: Session['status']) {
   switch (s) {
-    case 'requested': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
-    case 'accepted':  return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300';
-    case 'declined':  return 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300';
-    case 'cancelled': return 'bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200';
-    case 'completed': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-    default:          return 'bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200';
+    case 'requested': return 'default';
+    case 'accepted':  return 'default';
+    case 'declined':  return 'destructive';
+    case 'cancelled': return 'secondary';
+    case 'completed': return 'default';
+    default:          return 'secondary';
   }
 }
 
@@ -166,91 +169,96 @@ export default function SessionsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      {}
-      <div className="sticky top-0 z-10 -mx-4 mb-4 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 border-b">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl sm:text-3xl font-bold">Your Sessions</h1>
-          <div
-            role="tablist"
-            aria-label="Filter by role"
-            className="inline-flex rounded-lg border overflow-hidden"
-          >
-            {(['all', 'teacher', 'student'] as Role[]).map((r) => (
-              <button
-                key={r}
-                role="tab"
-                aria-selected={role === r}
-                onClick={() => setRole(r)}
-                className={`px-3 sm:px-4 py-2 text-sm capitalize transition
-                  ${role === r
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-background hover:bg-accent text-foreground'}`}
-              >
-                {r === 'all' ? 'All' : r === 'teacher' ? 'As Teacher' : 'As Student'}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-3xl font-bold">Your Sessions</h1>
+        <Tabs value={role} onValueChange={(value) => setRole(value as Role)} className="w-auto">
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="teacher">As Teacher</TabsTrigger>
+            <TabsTrigger value="student">As Student</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
-      {/* Loading*/}
       {loading && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="border rounded-xl p-4 animate-pulse">
-              <div className="h-4 w-1/3 bg-muted rounded mb-3" />
-              <div className="h-3 w-2/3 bg-muted rounded mb-2" />
-              <div className="h-3 w-1/2 bg-muted rounded" />
-            </div>
+            <Card key={i}>
+              <CardContent className="p-4">
+                <Skeleton className="h-4 w-1/3 mb-3" />
+                <Skeleton className="h-3 w-2/3 mb-2" />
+                <Skeleton className="h-3 w-1/2" />
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
       {err && !loading && (
-        <div className="rounded-lg border border-rose-300 bg-rose-50 dark:border-rose-900/40 dark:bg-rose-900/10 p-4 text-rose-700 dark:text-rose-300">
-          {err}
-        </div>
+        <Card className="border-destructive">
+          <CardContent className="p-4 text-destructive">
+            {err}
+          </CardContent>
+        </Card>
       )}
 
       {!loading && !err && (
-        <div className="space-y-10">
-          <Section
-            title="Requests"
-            empty="No requests."
-            items={grouped.requested}
-            highlightId={highlightId}
-            onAccept={(id) => act(id, 'accept')}
-            onDecline={(id) => act(id, 'decline')}
-            onCancel={(id) => act(id, 'cancel')}
-            onComplete={(id) => act(id, 'complete')}
-            onDelete={del}
-          />
+        <Tabs defaultValue="requests" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="requests">
+              Requests ({grouped.requested.length})
+            </TabsTrigger>
+            <TabsTrigger value="upcoming">
+              Upcoming ({grouped.upcoming.length})
+            </TabsTrigger>
+            <TabsTrigger value="history">
+              History ({grouped.past.length})
+            </TabsTrigger>
+          </TabsList>
 
-          <Section
-            title="Upcoming"
-            empty="No upcoming sessions."
-            items={grouped.upcoming}
-            highlightId={highlightId}
-            onAccept={(id) => act(id, 'accept')}
-            onDecline={(id) => act(id, 'decline')}
-            onCancel={(id) => act(id, 'cancel')}
-            onComplete={(id) => act(id, 'complete')}
-            onDelete={del}
-          />
+          <TabsContent value="requests" className="space-y-4">
+            <Section
+              title="Requests"
+              empty="No requests."
+              items={grouped.requested}
+              highlightId={highlightId}
+              onAccept={(id) => act(id, 'accept')}
+              onDecline={(id) => act(id, 'decline')}
+              onCancel={(id) => act(id, 'cancel')}
+              onComplete={(id) => act(id, 'complete')}
+              onDelete={del}
+            />
+          </TabsContent>
 
-          <Section
-            title="History"
-            empty="No past sessions."
-            items={grouped.past}
-            highlightId={highlightId}
-            onAccept={(id) => act(id, 'accept')}
-            onDecline={(id) => act(id, 'decline')}
-            onCancel={(id) => act(id, 'cancel')}
-            onComplete={(id) => act(id, 'complete')}
-            onDelete={del}
-          />
-        </div>
+          <TabsContent value="upcoming" className="space-y-4">
+            <Section
+              title="Upcoming"
+              empty="No upcoming sessions."
+              items={grouped.upcoming}
+              highlightId={highlightId}
+              onAccept={(id) => act(id, 'accept')}
+              onDecline={(id) => act(id, 'decline')}
+              onCancel={(id) => act(id, 'cancel')}
+              onComplete={(id) => act(id, 'complete')}
+              onDelete={del}
+            />
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-4">
+            <Section
+              title="History"
+              empty="No past sessions."
+              items={grouped.past}
+              highlightId={highlightId}
+              onAccept={(id) => act(id, 'accept')}
+              onDecline={(id) => act(id, 'decline')}
+              onCancel={(id) => act(id, 'cancel')}
+              onComplete={(id) => act(id, 'complete')}
+              onDelete={del}
+            />
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );
@@ -267,35 +275,33 @@ function Section(props: {
   onComplete: (id: number) => void;
   onDelete: (id: number) => void;
 }) {
-  const { title, empty, items } = props;
+  const { empty, items } = props;
+
+  if (items.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          {empty}
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <section>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg sm:text-xl font-semibold">{title}</h2>
-        <span className="text-xs sm:text-sm text-muted-foreground">{items.length} total</span>
-      </div>
-
-      {items.length === 0 ? (
-        <div className="rounded-lg border p-6 text-muted-foreground">{empty}</div>
-      ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((s) => (
-            <li key={s.id}>
-              <CardSession
-                s={s}
-                highlight={props.highlightId === s.id}
-                onAccept={() => props.onAccept(s.id)}
-                onDecline={() => props.onDecline(s.id)}
-                onCancel={() => props.onCancel(s.id)}
-                onComplete={() => props.onComplete(s.id)}
-                onDelete={() => props.onDelete(s.id)}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map((s) => (
+        <CardSession
+          key={s.id}
+          s={s}
+          highlight={props.highlightId === s.id}
+          onAccept={() => props.onAccept(s.id)}
+          onDecline={() => props.onDecline(s.id)}
+          onCancel={() => props.onCancel(s.id)}
+          onComplete={() => props.onComplete(s.id)}
+          onDelete={() => props.onDelete(s.id)}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -317,65 +323,64 @@ function CardSession({
   onDelete: () => void;
 }) {
   return (
-    <div
-      className={`rounded-xl border p-4 h-full flex flex-col gap-3 transition-shadow ${
-        highlight ? 'ring-2 ring-primary shadow-md' : 'hover:shadow-sm'
-      }`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="font-medium truncate">
-            Teacher: <span className="font-semibold">{s.teacher_name}</span>
+    <Card className={`h-full ${highlight ? 'ring-2 ring-primary shadow-md' : ''}`}>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <CardTitle className="text-sm font-medium truncate">
+              Teacher: {s.teacher_name}
+            </CardTitle>
+            <div className="text-sm font-medium truncate text-muted-foreground">
+              Student: {s.student_name}
+            </div>
           </div>
-          <div className="font-medium truncate">
-            Student: <span className="font-semibold">{s.student_name}</span>
+          <Badge variant={statusBadgeVariant(s.status)} className="whitespace-nowrap">
+            {s.status}
+          </Badge>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <div className="text-sm text-muted-foreground">
+          {fmtRangeUTC(s.start_utc, s.end_utc)}
+        </div>
+
+        {s.notes && (
+          <div className="text-sm bg-muted/50 rounded-md px-3 py-2">
+            <span className="font-medium">Notes:</span> {s.notes}
           </div>
+        )}
+
+        <div className="flex flex-wrap gap-2">
+          {s.status === 'requested' && (
+            <>
+              <Button onClick={onAccept} className="flex-1 sm:flex-none">
+                Accept
+              </Button>
+              <Button variant="outline" onClick={onDecline} className="flex-1 sm:flex-none">
+                Decline
+              </Button>
+            </>
+          )}
+
+          {s.status === 'accepted' && (
+            <>
+              <Button variant="outline" onClick={onCancel} className="flex-1 sm:flex-none">
+                Cancel
+              </Button>
+              <Button onClick={onComplete} className="flex-1 sm:flex-none">
+                Mark Complete
+              </Button>
+            </>
+          )}
+
+          {['declined', 'cancelled', 'completed'].includes(s.status) && (
+            <Button variant="destructive" onClick={onDelete} className="flex-1 sm:flex-none">
+              Delete
+            </Button>
+          )}
         </div>
-        <Badge className={`${statusBadgeColor(s.status)} whitespace-nowrap`} variant={undefined}>
-          {s.status}
-        </Badge>
-      </div>
-
-      <div className="text-sm text-muted-foreground">
-        {fmtRangeUTC(s.start_utc, s.end_utc)}
-      </div>
-
-      {s.notes && (
-        <div className="text-sm bg-muted/50 rounded-md px-3 py-2">
-          <span className="font-medium">Notes:</span> {s.notes}
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="mt-auto flex flex-wrap gap-2 pt-2">
-        {s.status === 'requested' && (
-          <>
-            <Button onClick={onAccept} className="flex-1 sm:flex-none" variant={undefined} size={undefined}>
-              Accept
-            </Button>
-            <Button variant="outline" onClick={onDecline} className="flex-1 sm:flex-none" size={undefined}>
-              Decline
-            </Button>
-          </>
-        )}
-
-        {s.status === 'accepted' && (
-          <>
-            <Button variant="outline" onClick={onCancel} className="flex-1 sm:flex-none" size={undefined}>
-              Cancel
-            </Button>
-            <Button onClick={onComplete} className="flex-1 sm:flex-none" variant={undefined} size={undefined}>
-              Mark Complete
-            </Button>
-          </>
-        )}
-
-        {['declined', 'cancelled', 'completed'].includes(s.status) && (
-          <Button variant="destructive" onClick={onDelete} className="flex-1 sm:flex-none" size={undefined}>
-            Delete
-          </Button>
-        )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
