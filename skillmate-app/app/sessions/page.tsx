@@ -1,14 +1,10 @@
 'use client';
 
-
-   'use client';
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -29,6 +25,7 @@ export type Session = {
   teacherName: string;
   studentName: string;
   skillName: string | null;
+  notes?: string;
 };
 
 
@@ -124,6 +121,8 @@ export default function SessionsPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [highlightId, setHighlightId] = useState<number | null>(null);
 
  
   useEffect(() => {
@@ -144,59 +143,78 @@ export default function SessionsPage() {
         return;
       }
       let data: unknown = [];
-try {
-  
-  const text = await res.text();
-  data = text ? JSON.parse(text) : [];
-} catch {
-  data = [];
-}
-+setSessions(Array.isArray(data) ? (data as Session[]) : []);
+      try {
+        const text = await res.text();
+        data = text ? JSON.parse(text) : [];
+      } catch (parseErr) {
+        console.error('Failed to parse sessions data:', parseErr);
+        setErr('Failed to load sessions data');
+        data = [];
+      }
+      setSessions(Array.isArray(data) ? (data as Session[]) : []);
       setLoading(false);
     };
     load();
   }, [role, router]);
 
-  /* helper for patching status */
-  const patch = async (
-    id: number,
-    action: 'accept' | 'decline' | 'cancel'
-  ) => {
-    await fetch(`/api/sessions/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action }),
-    });
-    setSessions((prev) =>
-      prev.map((s) =>
-        s.id === id
-          ? {
-              ...s,
-              status:
-                action === 'accept'
-                  ? 'accepted'
-                  : action === 'decline'
-                  ? 'declined'
-                  : 'cancelled',
-            }
-          : s
-      )
-    );
+  /* action handlers */
+  const act = async (id: number, action: 'accept' | 'decline' | 'cancel' | 'complete') => {
+    try {
+      await fetch(`/api/sessions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      setSessions((prev) =>
+        prev.map((s) =>
+          s.id === id
+            ? {
+                ...s,
+                status:
+                  action === 'accept'
+                    ? 'accepted'
+                    : action === 'decline'
+                    ? 'declined'
+                    : action === 'cancel'
+                    ? 'cancelled'
+                    : 'completed',
+              }
+            : s
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update session:', error);
+      setErr('Failed to update session');
+    }
+  };
+
+  const del = async (id: number) => {
+    try {
+      await fetch(`/api/sessions/${id}`, {
+        method: 'DELETE',
+      });
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+    } catch (error) {
+      console.error('Failed to delete session:', error);
+      setErr('Failed to delete session');
+    }
   };
 
   /* splits */
-  const pending = sessions.filter((s) => s.status === 'requested');
-  const upcoming = sessions.filter((s) => s.status === 'accepted');
-  const history = sessions.filter(
-    (s) => s.status !== 'requested' && s.status !== 'accepted'
-  );
+  const grouped = {
+    requested: sessions.filter((s) => s.status === 'requested'),
+    upcoming: sessions.filter((s) => s.status === 'accepted'),
+    past: sessions.filter(
+      (s) => s.status !== 'requested' && s.status !== 'accepted'
+    ),
+  };
 
   /* ---------------------------------------------------------------- */
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-bold">Your Sessions</h1>
-        <Tabs value={role} onValueChange={(value) => setRole(value as Role)} className="w-auto">
+        <Tabs value={role} onValueChange={(value) => setRole(value as 'all' | 'teacher' | 'student')} className="w-auto">
           <TabsList>
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="teacher">As Teacher</TabsTrigger>
@@ -352,10 +370,10 @@ function CardSession({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
             <CardTitle className="text-sm font-medium truncate">
-              Teacher: {s.teacher_name}
+              Teacher: {s.teacherName}
             </CardTitle>
             <div className="text-sm font-medium truncate text-muted-foreground">
-              Student: {s.student_name}
+              Student: {s.studentName}
             </div>
           </div>
           <Badge variant={statusBadgeVariant(s.status)} className="whitespace-nowrap">
