@@ -136,6 +136,7 @@ export default function SessionsPage() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setErr(null);
       const qs = role === 'all' ? '' : `?role=${role}`;
       const res = await fetch(`/api/sessions${qs}`, { cache: 'no-store' });
       if (res.status === 401) {
