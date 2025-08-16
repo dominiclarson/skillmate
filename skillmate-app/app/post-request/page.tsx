@@ -59,7 +59,7 @@ export default function PostRequestPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [pathname, router]);
-
+   //handles the passing of info to db
   const handlePostSkill = async () => {
     if (!name.trim() || !description.trim() ) {
       return;
@@ -81,14 +81,12 @@ export default function PostRequestPage() {
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Reset form
       setDescription('');
       setName('');
-      
       // Show success message or redirect
       alert('Skill posted successfully!');
-      
+    
     } catch (error) {
       alert('An error occurred. Please try again.');
     } finally {
@@ -108,13 +106,10 @@ export default function PostRequestPage() {
       
       <main className="flex-1 max-w-4x1 mx-auto p-8">
         <h1 className="text-3xl font-bold mb-6">Post a New Skill</h1>
-        
-          
           {/* Post Details */}
           <div className="space-y-6">
             <Card className="p-6">
               <h2 className="text-xl font-semibold mb-4">Post Details</h2>
-              
                   {/* Skill Input */}
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2">
@@ -129,14 +124,12 @@ export default function PostRequestPage() {
                     className="pr-12"
                   />
                   <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
-                   
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Our admins will review your suggestions!
                 </p>
               </div>
-
               {/* Description Input */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
@@ -154,9 +147,6 @@ export default function PostRequestPage() {
                   {description.length}/1000 characters
                 </p>
               </div>
-              
-
-              
               {/* Post Button */}
               <Button
                 variant="default"
@@ -167,7 +157,6 @@ export default function PostRequestPage() {
               >
                 {posting ? 'Posting...' : 'Post Skill'}
               </Button>
-              
               {/* Requirements */}
               <div className="mt-4 text-xs text-gray-500">
                 <p>* Required fields</p>
