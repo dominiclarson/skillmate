@@ -41,7 +41,7 @@ export default function PostRequestPage() {
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   const [description, setDescription] = useState('');
   const [posting, setPosting] = useState(false);
-  const [name, setName] = useState(null);
+  const [name, setName] = useState('');
 
   // Load session
   useEffect(() => {

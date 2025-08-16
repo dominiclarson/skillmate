@@ -1,18 +1,12 @@
-
-
-import { NextApiRequest } from 'next';
+import { NextRequest } from 'next/server';
 import { NextApiResponseServerIO } from '@/types/socket';
 import { Server as IOServer } from 'socket.io';
 
-
-export const config = { api: { bodyParser: false } };
-
 let io: IOServer | undefined;
 
-export default async function handler(
-  _req: NextApiRequest,
-  res: NextApiResponseServerIO
-) {
+export async function GET(req: NextRequest) {
+  const res = req as any as NextApiResponseServerIO;
+  
   if (!io) {
     io = new IOServer(res.socket.server as any, {
       path: '/api/socket',
@@ -30,5 +24,6 @@ export default async function handler(
 
     res.socket.server.io = io;
   }
-  res.end();
+  
+  return new Response('Socket server initialized', { status: 200 });
 }
