@@ -202,17 +202,17 @@ function HomePage() {
     <div className="flex flex-col min-h-screen">
       {/* Main dashboard */}
       <main className="flex-1 px-8 py-10 bg-background">
-        <div className="max-w-6xl mx-auto space-y-12">
+        <div className="container mx-auto space-y-12">
           {/* Welcome */}
           <section className="bg-gradient-to-r from-primary to-primary/80 rounded-3xl p-8 text-primary-foreground relative overflow-hidden">
             <div className="absolute inset-0 bg-pattern opacity-20"></div>
             <div className="relative z-10 flex items-center space-x-6">
               <div className="bg-background/20 backdrop-blur-sm p-4 rounded-2xl">
-                <User className="text-primary-foreground" size={48} />
+                <User className="text-white" size={48} />
               </div>
               <div>
-                <h1 className="text-5xl font-bold mb-2">Welcome Back!</h1>
-                <p className="text-primary-foreground/80 text-xl">
+                <h1 className="text-5xl font-bold mb-2 text-white">Welcome Back!</h1>
+                <p className="text-white text-xl ">
                   Ready to explore new skills and connect with experts?
                 </p>
               </div>
@@ -224,7 +224,7 @@ function HomePage() {
             <h2 className="text-3xl font-bold mb-8 text-foreground">Quick Actions</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               <Link href="/featured">
-                <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-card hover:bg-accent">
+                <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-card hover:bg-accent h-full">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="bg-primary/10 p-3 rounded-xl group-hover:bg-primary/20 transition-colors">
@@ -241,7 +241,7 @@ function HomePage() {
               </Link>
 
               <Link href="/profile">
-                <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-card hover:bg-accent">
+                <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-card hover:bg-accent h-full">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="bg-secondary/50 p-3 rounded-xl group-hover:bg-secondary transition-colors">
@@ -258,7 +258,7 @@ function HomePage() {
               </Link>
 
               <Link href="/chat">
-                <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-card hover:bg-accent">
+                <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-card hover:bg-accent h-full">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="bg-accent/50 p-3 rounded-xl group-hover:bg-accent transition-colors">
@@ -281,10 +281,10 @@ function HomePage() {
             <div className="absolute inset-0 bg-pattern opacity-20"></div>
             <div className="relative z-10">
               <div className="bg-background/20 backdrop-blur-sm p-4 rounded-2xl w-fit mx-auto mb-6">
-                <Zap className="text-primary-foreground" size={48} />
+                <Zap className="text-white" size={48} />
               </div>
-              <h2 className="text-4xl font-bold mb-6">Share Your Expertise</h2>
-              <p className="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
+              <h2 className="text-4xl font-bold mb-6 text-white">Share Your Expertise</h2>
+              <p className="text-xl text-white mb-8 max-w-2xl mx-auto">
                 Turn your skills into opportunities. Start helping others in your community and build meaningful connections.
               </p>
               <Link href="/post-request">
