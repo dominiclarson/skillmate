@@ -148,7 +148,7 @@ try {
     (s) => s.status !== 'requested' && s.status !== 'accepted'
   );
 
-  /* ---------------------------------------------------------------- */
+
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="space-y-6 sm:space-y-8">
@@ -173,7 +173,7 @@ try {
         </header>
 
         <div className="flex flex-wrap gap-2">
-          {(['all', 'student', 'teacher'] as const).map((r) => (
+          {([ 'student', 'teacher'] as const).map((r) => (
             <Button
               key={r}
               variant={role === r ? 'default' : 'secondary'}
@@ -181,7 +181,7 @@ try {
               className=""
               onClick={() => setRole(r)}
             >
-              {r === 'all' ? 'All Sessions' : r === 'student' ? 'As Student' : 'As Teacher'}
+              {r === 'student' ? 'As Student' : 'As Teacher'}
             </Button>
           ))}
         </div>
