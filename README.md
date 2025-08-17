@@ -60,11 +60,13 @@ The following features are currently implemented and working:
 
 - **Authentication**: Sign up, log in, logout, and session persistence 
 - **Skill CRUD**: Listing all skills, searching by name, and displaying details.
-- **Featured Skills Page**: Dynamic filtering and selection of skills with sidebar navigation.
+- **Featured Skills Page**: Dynamic filtering and selection of skills.
 - **SkillOverview Component**: Displays selected skill’s description and details.
-- **AppSidebar**: Collapsible sidebar showing filtered skills and active selection.
 - **Database Integration**: MySQL connection pooling and migrations.
 - **Responsive Design**: Grid layouts adjust from mobile to desktop, light/dark mode support.
 - **Lesson Scheduling**: Users can schedule sessions with other users that have skills marked to teach.
 - **Profile data**: This includes Name, Email, skills I have, interested skills I want to learn.
 - **Notifications**: This includes session scheduling, and friend requests.
+- **New Skill Option**: Allows the user to submit new skill ideas
+- **Location matching**: Matches user locations based on browser location or zip code
+- **Unit Testing**: Unit and system testing
