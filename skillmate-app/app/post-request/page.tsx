@@ -5,9 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { skills, Skill } from '@/lib/skills';
-import { AppSidebar } from '@/components/app-sidebar';
+
 
 /**
  * Skill posting and service creation page.
@@ -17,11 +16,9 @@ import { AppSidebar } from '@/components/app-sidebar';
  * 
  * @component
  * @features
- * - **Skill Selection**: Browse and search through available skill categories
- * - **Service Creation**: Form for service descriptions and pricing
  * - **Visual Skill Browser**: Interactive grid with emojis and descriptions
  * - **Form Validation**: Ensure required fields are completed
- * - **Responsive Layout**: Sidebar navigation with main content area
+ * - **Responsive Layout**: main content area
 
  * @dependencies
  * - React hooks for state and effect management

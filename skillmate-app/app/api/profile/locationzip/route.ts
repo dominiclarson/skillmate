@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { getSession } from "@/lib/auth-utils"; // adjust to your path
+import { getSession } from "@/lib/auth-utils"; 
 
 export const runtime = "nodejs";
 
@@ -37,7 +37,6 @@ export async function POST(req: Request) {
   [zip, zip, me.id]
     );
 
-    // @ts-ignore - mysql2 result typing
     if (result.affectedRows === 0) {
       // Either ZIP didn’t exist or user id wasn’t found
       // Check ZIP existence to give a precise error:
@@ -45,7 +44,6 @@ export async function POST(req: Request) {
         "SELECT 1 FROM zipcodes WHERE zip = ? LIMIT 1",
         [zip]
       );
-      // @ts-ignore
       if (!exists.length) {
         return NextResponse.json({ error: "Unknown ZIP" }, { status: 404 });
       }

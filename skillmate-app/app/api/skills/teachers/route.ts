@@ -7,7 +7,6 @@ export const runtime = 'nodejs';
 const EARTH_MI = 3959;
 
 /**
- * GET /api/teachers?skillId=123[&lat=..&lng=..&radiusMi=..]
  * - Always filters by skillId
  * - Optionally filters by distance and includes distance_mi
  */

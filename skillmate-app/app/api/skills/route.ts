@@ -2,7 +2,7 @@ import pool from '@/lib/db';
 
 
 export interface Skill {
-    id: string;           // unique identifier, e.g. kebab‑case of name
+    id: string;           // unique identifier
     name: string;
     description: string;
     emoji: string;
