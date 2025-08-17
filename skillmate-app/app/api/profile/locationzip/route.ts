@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { getSession } from "@/lib/auth-utils"; 
+import { getSession } from "@/lib/auth-utils";
+import { ResultSetHeader } from "mysql2"; 
 
 export const runtime = "nodejs";
 
@@ -37,14 +38,14 @@ export async function POST(req: Request) {
   [zip, zip, me.id]
     );
 
-    if (result.affectedRows === 0) {
+    if ((result as ResultSetHeader).affectedRows === 0) {
       // Either ZIP didn’t exist or user id wasn’t found
       // Check ZIP existence to give a precise error:
       const [exists] = await pool.execute(
         "SELECT 1 FROM zipcodes WHERE zip = ? LIMIT 1",
         [zip]
       );
-      if (!exists.length) {
+      if (!(exists as any[]).length) {
         return NextResponse.json({ error: "Unknown ZIP" }, { status: 404 });
       }
       return NextResponse.json({ error: "User not found" }, { status: 404 });
