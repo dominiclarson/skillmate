@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { skills, Skill } from '@/lib/skills';
 import { AppSidebar } from '@/components/app-sidebar';
@@ -97,73 +99,82 @@ export default function PostRequestPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        Loading…
+        <div className="text-muted-foreground">Loading…</div>
       </div>
     );
   }
 
   return (
-      
-      <main className="flex-1 max-w-4x1 mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-6">Post a New Skill</h1>
-          {/* Post Details */}
-          <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Post Details</h2>
-                  {/* Skill Input */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">
-                  Skill name <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <Input
-                    type="text"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="Enter Skill Name here"
-                    className="pr-12"
-                  />
-                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Our admins will review your suggestions!
-                </p>
-              </div>
-              {/* Description Input */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Skill Description <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  placeholder="Describe your skill that you think we're missing!"
-                  rows={6}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 p-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-800"
-                  maxLength={1000}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  {description.length}/1000 characters
-                </p>
-              </div>
-              {/* Post Button */}
+    <main className="flex-1 container mx-auto p-6">
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Post a New Skill</h1>
+          <p className="text-muted-foreground">
+            Suggest a new skill that you think we should add to our platform.
+          </p>
+        </div>
+
+        <Card className="">
+          <CardHeader className="">
+            <CardTitle className="">Skill Details</CardTitle>
+            <CardDescription className="">
+              Provide information about the skill you'd like to suggest.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label className="" htmlFor="skill-name">
+                Skill name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="skill-name"
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Enter Skill Name here"
+                className=""
+              />
+              <p className="text-xs text-muted-foreground">
+                Our admins will review your suggestions!
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="" htmlFor="skill-description">
+                Skill Description <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="skill-description"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Describe your skill that you think we're missing!"
+                rows={6}
+                maxLength={1000}
+              />
+              <p className="text-xs text-muted-foreground">
+                {description.length}/1000 characters
+              </p>
+            </div>
+
+            <div className="space-y-4">
               <Button
-                variant="default"
                 onClick={handlePostSkill}
+                variant="default"
                 disabled={!description.trim() || !name.trim() || posting}
                 className="w-full"
                 size="lg"
               >
                 {posting ? 'Posting...' : 'Post Skill'}
               </Button>
-              {/* Requirements */}
-              <div className="mt-4 text-xs text-gray-500">
+              
+              <div className="text-xs text-muted-foreground space-y-1">
                 <p>* Required fields</p>
                 <p>• Please provide a detailed description</p>
               </div>
-            </Card>
-          </div>
-      </main>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </main>
   );
 }
