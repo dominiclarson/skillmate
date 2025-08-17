@@ -24,27 +24,13 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-export {}; // This makes the file a module
+/// <reference types="cypress" />
 
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      /**
-       * Custom command to login via API and set the session cookie
-       * @param email - user email
-       * @param password - user password
-       */
-      login(email: string, password: string): Chainable<any>;
-    }
+declare namespace Cypress {
+  interface Chainable {
+    /**
+     * Returns a local "YYYY-MM-DDTHH:MM" datetime string.
+     */
+    localDateTimeString(daysAhead?: number, hour?: number): Chainable<string>;
   }
 }
-
-// Implement the custom command
-Cypress.Commands.add('login', (email: string, password: string) => {
-  return cy.request({
-    method: 'POST',
-    url: '/api/auth/login',
-    body: { email, password },
-    failOnStatusCode: false,
-  }).its('status').should('eq', 200);
-});
